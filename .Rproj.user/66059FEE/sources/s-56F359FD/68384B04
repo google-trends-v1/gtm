@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1551294341544.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "68384B04",
+    "lastKnownWriteTime" : 1551295770,
+    "last_content_update" : 1551295770469,
+    "path" : "~/Desktop/MAE_Lab/R_Packages/gtm/gtm/man/get.trends.Rd",
+    "project_path" : "man/get.trends.Rd",
+    "properties" : {
+        "cursorPosition" : "6,27",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_doc"
+}
