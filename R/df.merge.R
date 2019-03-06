@@ -7,4 +7,5 @@ df.merge<-function(df.list=NULL){
       return(cat("Error happens at ", names(df.list)[i], "."))
     }
   }
+  return(data.merged)
 }
