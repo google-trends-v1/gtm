@@ -35,6 +35,7 @@ load.data(pattern=NULL, path=getwd(), merge=FALSE)
 %% ~put references to the literature/web site here ~
 }
 \author{
+Zehua Wu
 %%  ~~who you are~~
 }
 \note{
