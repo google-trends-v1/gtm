@@ -22,11 +22,11 @@ maeforecast.dfm(data, w_size, window="recursive", factor.num)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{data}{a data frame or a matrix; the first column should contain the time series variable for which the forecasts are to be made. Other columns should contain the covariates.}
-  \item{model}{character, indicating which time series model or machine learning algorithm should be implemented. Options include "ar", "lasso", "arlasso" (AR+Lasso), "ridge", "alasso" (Adaptive Lasso), "aralasso" (AR+Ada-Lasso), "arnet" (AR+Ada-ElasticNet), "dfm"(Dynamic Factor Model). Default is "ar". Note that maeforecast.ar() is equivalent to maeforecast(model="ar"), and so on.}
-  \item{w_size}{numeric, indicating the index where the forecasting should begin. If the first point forecast should be made at index=73, for example, w_size should be set to be 72.}
-  \item{window}{character, indicating the forecasting scheme to be applied. Options include "recursive", "rolling"", and "fixed".}
+  \item{model}{character, indicating which time series model or machine learning algorithm should be implemented. Options include \code{"ar"}, \code{"lasso"}, \code{"arlasso"} (AR+Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"aralasso"} (AR+Ada-Lasso), \code{"arnet"} (AR+Ada-ElasticNet), \code{"dfm"}(Dynamic Factor Model). Default is \code{"ar"}. Note that \code{maeforecast.ar()} is equivalent to \code{maeforecast(model="ar")}, and so on.}
+  \item{w_size}{numeric, indicating the index where the forecasting should begin. If the first point forecast should be made at the 73th observation, for example, \code{w_size} should be set to be 72.}
+  \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.}
   \item{pred}{numeric, indicating the number of predicators being considered in the Adaptive Elastic Net model. Default is set to be equal to the number of observations.}
-  \item{factor.num}{numeric, indicating the number of dynamic factors to be extracted from the covariates in the Dynamic Factor Model. Default is 3.}
+  \item{factor.num}{numeric, indicating the number of dynamic factors to be extracted from the covariates in the Dynamic Factor Model. Default is \code{3}.}
 
 }
 \details{

@@ -41,23 +41,12 @@ Zehua Wu
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+\code{\link{df.merge}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-## Example using a self-created data frame
-
-require(plyr)
-dfs <- list(
-  a = data.frame(x = 1:10, a = runif(10)),
-  b = data.frame(x = 1:10, b = runif(10)),
-  c = data.frame(x = 1:10, c = runif(10))
-)
-df<-join_all(dfs, "x")
-#Create a multivarita data frame
-
-data.list<-df.split(df, by="x")
-#Split the data frame
-
+data("US_Unemployment")
+data.list<-df.split(dataframe=US_Unemployment, by="Date")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

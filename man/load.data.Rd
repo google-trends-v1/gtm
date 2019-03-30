@@ -16,7 +16,7 @@ load.data(pattern=NULL, path=getwd(), merge=FALSE)
     \item{pattern}{character, indicating the pattern to be mathced in the file names. If specified, only files with names matching the pattern will be loaded.
 %%     ~~Describe \code{x} here~~
 }
-  \item{merge}{logical, FALSE by default. If TRUE, data frames will be merged based on a common variable name.
+  \item{merge}{logical, \code{FALSE} by default. If \code{TRUE}, data frames will be merged based on a common variable name.
 }
 }
 
@@ -46,6 +46,7 @@ R has trouble processing variable names that contain certain special characters,
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+\code{\link{df.merge}}, \code{\link{df.split}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

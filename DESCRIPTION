@@ -1,11 +1,18 @@
 Package: gtm
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Title: Functions for Economic Nowcasting with Google Trends Data
+Version: 1.0.0
+Authors@R: person("Wu", "Zehua", email = "yxz465y@ucla.edu",
+  role = c("aut", "cre"))
+Maintainer: Zehua Wu <yxz465y@ucla.edu>
+Description: This package provides function that helps download Google Trends data to
+    local directories, merge multiple data sets into a single data frame, clean data sets
+    based on certain criteria, and most importantly, construct forecasts and calculate
+    forecasting accuracies based on selected machine learning algorithms.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Imports:
+    gtrendsR,
+    stats,
+    forecast

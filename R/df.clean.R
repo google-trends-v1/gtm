@@ -7,7 +7,7 @@ df.clean<-function(df=NULL, threshold=NULL, smaller=TRUE, index=NULL){
   }
   if(isTRUE(smaller)){
     for(i in index){
-      if(mean(df[,i])<=threshold){
+      if(mean(as.numeric(df[,i]))<=threshold){
         rm<-c(rm, i)
       }else{
         next
@@ -15,7 +15,7 @@ df.clean<-function(df=NULL, threshold=NULL, smaller=TRUE, index=NULL){
     }
   }else{
     for(i in index){
-      if(mean(df[,i])>=threshold){
+      if(mean(as.numeric(df[,i]))>=threshold){
         rm<-c(rm, i)
       }else{
         next

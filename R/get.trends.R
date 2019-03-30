@@ -1,5 +1,5 @@
 get.trends<-function(queries=NULL, geo="US", time="all", path=getwd()){
-  library(gtrendsR)
+  suppressMessages(require(gtrendsR))
   if(is.null(queries)){
     print("Error: no queries provided.")
   }else{

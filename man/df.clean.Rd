@@ -16,7 +16,7 @@ df.clean(df=NULL, threshold=NULL, smaller=TRUE, index=NULL)
 %%     ~~Describe \code{x} here~~
 }
   \item{threshold}{numeric; for each column in the data frame, the mean is compared against the threshold.}
-  \item{smaller}{logical; default is TRUE. If set FALSE, columns with a mean greater than the threshold will be removed.}
+  \item{smaller}{logical; default is \code{TRUE}. If set \code{FALSE}, columns with a mean greater than the threshold will be removed.}
   \item{index}{integers connected by a colon indicating which columns in the data frame should be considered. If ommitted, all columns are considered by default}
 }
 \details{
@@ -42,14 +42,13 @@ df.clean(df=NULL, threshold=NULL, smaller=TRUE, index=NULL)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+\code{\link{df.rm}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-x<-rnorm(n=10, mean=0, sd=1)
-y<-rnorm(n=10, mean=5, sd=1)
-z<-rnorm(n=10, mean=10, sd=1)
-data<-cbind(x, y, z)
-df.clean(data, threshold=5)
+data(US_Unemployment)
+mydata<-df.clean(US_Unemployment, threshold=10,
+        index=2:ncol(US_Unemployment), smaller=TRUE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

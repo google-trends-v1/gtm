@@ -15,13 +15,14 @@ get.trends(queries=NULL, geo="US", time="all", path=getwd())
   \item{quries}{a vector of quries to get Google Trends for.
 %%     ~~Describe \code{x} here~~
 }
-  \item{geo}{character, indicating the geographic location for the queries.
+  \item{geo}{character, indicating the geographic location for the queries. Defualt is \code{"US"}.
 }
-  \item{time}{character, indicating the time span for the queries.
+  \item{time}{character, indicating the time span for the queries. Defualt is \code{"all"}.
 }
   \item{path}{string, denoting the directory under which the csv files should be stored.}
 }
 \details{
+Supported countries and their corresponding country codes can be found by calling \code{data("countries")}. For more details, refer to \code{help(gtrends)}.
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
@@ -48,9 +49,10 @@ Zehua Wu
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-list<-c("unemployment", "us unemployment")
-dir="~/Documents"
-get.trends(queries=list, geo="US", time="all", path=dir)
+dir="~/Documents/Inflation"
+data("US_Inflation_Queries")
+inflation<-as.character(US_Inflation_Queries$Queries)
+get.trends(queries=inflation, geo="US", time="all", path=dir)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
