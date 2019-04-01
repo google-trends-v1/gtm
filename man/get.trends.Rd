@@ -22,7 +22,7 @@ get.trends(queries=NULL, geo="US", time="all", path=getwd())
   \item{path}{string, denoting the directory under which the csv files should be stored.}
 }
 \details{
-Supported countries and their corresponding country codes can be found by calling \code{data("countries")}. For more details, refer to \code{help(gtrends)}.
+Supported countries and their corresponding country codes can be found by calling \code{data("countries")}. For more details, refer to \code{\link{gtrends}}.
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{

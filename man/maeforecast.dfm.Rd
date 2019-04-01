@@ -1,39 +1,24 @@
-\name{maeforecast}
-\alias{maeforecast}
+\name{maeforecast.dfm}
+\alias{maeforecast.dfm}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Economic Forecasting with High-Dimensional Data
+\title{Economic Forecasting with High-Dimensional Data (Dynamic Factor Model)
 %%  ~~function to do ... ~~
 }
-\description{This function calculates one-step-ahead point forecasts with recursive, rolling or fixed windows in a data-rich environment. Supported machine learning algorithms include Lasso, Ridge, Adaptive Lasso, Adaptive Elastic Net, as well as AR(1) model as a potential benchmark. Dynamic factor models, Regression Trees and Random Forest algorithms are also supported. Out-of-sample forecasts are returned alongside mean squred errors and success ratios.
+\description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-maeforecast(data, model="ar", w_size, window="recursive", ...)
-
-maeforecast.ar(data, w_size, window="recursive")
-maeforecast.lasso(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.postlasso(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.ridge(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.alasso(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.postalasso(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.postnet(data, w_size, window="recursive", pred, standardize=TRUE)
-maeforecast.dfm(data, w_size, window="recursive", factor.num)
+maeforecast.dfm(data = NULL, w_size = NULL, window = "recursive", factor.num = 3)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{data}{a data frame or a matrix; the first column should contain the time series variable for which the forecasts are to be made. Other columns should contain the covariates.}
-  \item{model}{character, indicating which model should be used to make the forecasts. Default is an AR(1) model. Note that \code{maeforecast(model="ar")} is equivalent to \code{maeforecast.ar()} and so on. See Details for the full list of supported models.}
   \item{w_size}{numeric, indicating the index where the forecasting should begin. If the first point forecast should be made at the 73th observation, for example, \code{w_size} should be set to be 72.}
   \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.}
-  \item{pred}{numeric, indicating the number of predicators being considered in the Adaptive Elastic Net model. Default is set to be equal to the number of observations.}
   \item{factor.num}{numeric, indicating the number of dynamic factors to be extracted from the covariates in the Dynamic Factor Model. Default is \code{3}.}
-  \item{standardize}{logical, indicating whether the data matrix should be scaled before the model is fitting, for the use of variable selection/shrinkage models. Default is \code{TRUE}.}
 
 }
 \details{
-Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"dfm"}(Dynamic Factor Model).
-
-For shrinkage models, the penalty factor lambda is selected automatically by 10-fold cross-validation.
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{

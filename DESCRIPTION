@@ -4,15 +4,18 @@ Title: Functions for Economic Nowcasting with Google Trends Data
 Version: 1.0.0
 Authors@R: person("Wu", "Zehua", email = "yxz465y@ucla.edu",
   role = c("aut", "cre"))
-Maintainer: Zehua Wu <yxz465y@ucla.edu>
-Description: This package provides function that helps download Google Trends data to
-    local directories, merge multiple data sets into a single data frame, clean data sets
-    based on certain criteria, and most importantly, construct forecasts and calculate
-    forecasting accuracies based on selected machine learning algorithms.
-License: What license is it under?
+Description: This package provides function that helps download Google Trends data to local directories, merge multiple data sets into a single data frame, clean data sets based on certain criteria, and most importantly, construct forecasts and calculate forecasting accuracies based on selected machine learning algorithms.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
     gtrendsR,
     stats,
-    forecast
+    forecast,
+    glm2,
+    msaenet,
+    boot
+Suggests:
+    devtools
+Author: Zehua Wu [aut, cre]
+Maintainer: Zehua Wu <yxz465y@ucla.edu>

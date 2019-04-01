@@ -1,7 +1,7 @@
 get.trends<-function(queries=NULL, geo="US", time="all", path=getwd()){
   suppressMessages(require(gtrendsR))
-  if(is.null(queries)){
-    print("Error: no queries provided.")
+  if(is.null(queries)|class(queries)!="character"){
+    stop("Queries have to be provided as a vector of characters.")
   }else{
     num.queries=as.numeric(length(queries))
     num.files=0
@@ -27,7 +27,7 @@ get.trends<-function(queries=NULL, geo="US", time="all", path=getwd()){
     num.files=num.files+1
   }
   num.omit=num.queries-num.files
-  cat(num.queries, " queries submitted in total.", "\n",num.files, " queries processed and downloaded in ", "'", path, "'", ".", "\n", num.omit, " queries omitted. ", "\n", sep="")
+  cat(num.queries, " queries submitted in total.", "\n",num.files, " queries processed and saved in ", "'", path, "'", ".", "\n", num.omit, " queries omitted. ", "\n", sep="")
   if(num.omit!=0){
     cat("These are: ")
     cat(failures)

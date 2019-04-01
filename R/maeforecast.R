@@ -1,9 +1,9 @@
-maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive"){
+maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", standardize=TRUE){
   if(is.null(data)|is.null(w_size)){
-    return("Have to provide values for data and w_size")
+    stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
-    return("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
   Data = data
@@ -18,12 +18,14 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive"){
   if(window=="recursive"){
     for(i in 1:n_windows){
       lasso.mod<-glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
-                        alpha=1)
+                        alpha=1,
+                        standardize=standardize)
 
       lasso_cv<-cv.glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                           type.measure="mse",
                           nfold=10,
-                          alpha=1)
+                          alpha=1,
+                          standardize=standardize)
 
       lasso_predict<-predict(lasso.mod, s=lasso_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -36,12 +38,12 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive"){
   }else if(window=="rolling"){
     for(i in 1:n_windows){
       lasso.mod<-glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
-                        alpha=1)
+                        alpha=1, standardize=standardize)
 
       lasso_cv<-cv.glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                           type.measure="mse",
                           nfold=10,
-                          alpha=1)
+                          alpha=1, standardize=standardize)
 
       lasso_predict<-predict(lasso.mod, s=lasso_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -53,12 +55,12 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive"){
     }
   }else{
     lasso.mod<-glmnet(x = X[1:w_size,], y = Y[1:w_size,],
-                      alpha=1)
+                      alpha=1, standardize=standardize)
 
     lasso_cv<-cv.glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                         type.measure="mse",
                         nfold=10,
-                        alpha=1)
+                        alpha=1, standardize=standardize)
     for(i in 1:n_windows){
       lasso_predict<-predict(lasso.mod, s=lasso_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -99,12 +101,12 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive"){
 
 
 
-maeforecast.arlasso<-function(data=NULL, w_size=NULL, window="recursive"){
+maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", standardize=TRUE){
   if(is.null(data)|is.null(w_size)){
-    return("Have to provide values for data and w_size")
+    stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
-    return("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
   Data = data
@@ -119,12 +121,12 @@ maeforecast.arlasso<-function(data=NULL, w_size=NULL, window="recursive"){
   if(window=="recursive"){
     for(i in 1:n_windows){
       lasso.mod<-glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
-                        alpha=1)
+                        alpha=1, standardize=standardize)
 
       lasso_cv<-cv.glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                           type.measure="mse",
                           nfold=10,
-                          alpha=1)
+                          alpha=1, standardize=standardize)
 
       best_lasso_coef <- coef(lasso_cv, s = lasso_cv$lambda.min)
       best_lasso_coef = as.numeric(best_lasso_coef) [-1]
@@ -159,12 +161,12 @@ maeforecast.arlasso<-function(data=NULL, w_size=NULL, window="recursive"){
   }else if(window=="rolling"){
     for(i in 1:n_windows){
       lasso.mod<-glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
-                        alpha=1)
+                        alpha=1, standardize=standardize)
 
       lasso_cv<-cv.glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                           type.measure="mse",
                           nfold=10,
-                          alpha=1)
+                          alpha=1, standardize=standardize)
 
       best_lasso_coef <- coef(lasso_cv, s = lasso_cv$lambda.min)
       best_lasso_coef = as.numeric(best_lasso_coef) [-1]
@@ -198,12 +200,12 @@ maeforecast.arlasso<-function(data=NULL, w_size=NULL, window="recursive"){
     }
   }else{
     lasso.mod<-glmnet(x = X[1:w_size,], y = Y[1:w_size,],
-                      alpha=1)
+                      alpha=1, standardize=standardize)
 
     lasso_cv<-cv.glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                         type.measure="mse",
                         nfold=10,
-                        alpha=1)
+                        alpha=1, standardize=standardize)
 
     best_lasso_coef <- coef(lasso_cv, s = lasso_cv$lambda.min)
     best_lasso_coef = as.numeric(best_lasso_coef) [-1]
@@ -259,12 +261,12 @@ maeforecast.arlasso<-function(data=NULL, w_size=NULL, window="recursive"){
 
 
 
-maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive"){
+maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive", standardize=TRUE){
   if(is.null(data)|is.null(w_size)){
-    return("Have to provide values for data and w_size")
+    stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
-    return("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
   Data = data
@@ -279,12 +281,12 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive"){
   if(window=="recursive"){
     for(i in 1:n_windows){
       ridge.mod<-glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
-                        alpha=0)
+                        alpha=0, standardize=standardize)
 
       ridge_cv<-cv.glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                           type.measure="mse",
                           nfold=10,
-                          alpha=0)
+                          alpha=0, standardize=standardize)
 
 
       ridge_predict<-predict(ridge.mod, s=ridge_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
@@ -298,12 +300,12 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive"){
   }else if (window=="rolling"){
     for(i in 1:n_windows){
       ridge.mod<-glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
-                        alpha=0)
+                        alpha=0, standardize=standardize)
 
       ridge_cv<-cv.glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                           type.measure="mse",
                           nfold=10,
-                          alpha=0)
+                          alpha=0, standardize=standardize)
 
 
       ridge_predict<-predict(ridge.mod, s=ridge_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
@@ -316,12 +318,12 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive"){
     }
   }else{
     ridge.mod<-glmnet(x = X[1:w_size,], y = Y[1:w_size,],
-                      alpha=0)
+                      alpha=0, standardize=standardize)
 
     ridge_cv<-cv.glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                         type.measure="mse",
                         nfold=10,
-                        alpha=0)
+                        alpha=0, standardize=standardize)
     for(i in 1:n_windows){
       ridge_predict<-predict(ridge.mod, s=ridge_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -359,12 +361,12 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive"){
 
 
 
-maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive"){
+maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", standardize=TRUE){
   if(is.null(data)|is.null(w_size)){
-    return("Have to provide values for data and w_size")
+    stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
-    return("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
   Data = data
@@ -382,19 +384,21 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive"){
       ridge_cv <- cv.glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                              type.measure = "mse",
                              nfold = 10,
-                             alpha = 0)
+                             alpha = 0, standardize=standardize)
       best_ridge_coef <- as.numeric(coef(ridge_cv, s = ridge_cv$lambda.1se))[-1]
 
       alasso.mod <- glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                             alpha = 1,
-                            penalty.factor = 1/abs(best_ridge_coef))
+                            penalty.factor = 1/abs(best_ridge_coef),
+                           standardize=standardize)
 
       alasso_cv <- cv.glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                               type.measure = "mse",
                               nfold = 10,
                               alpha = 1,
                               penalty.factor = 1/abs(best_ridge_coef),
-                              keep = TRUE)
+                              keep = TRUE,
+                             standardize=standardize)
 
       alasso_predict<-predict(alasso.mod, s=alasso_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -409,19 +413,21 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive"){
       ridge_cv <- cv.glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                             type.measure = "mse",
                             nfold = 10,
-                            alpha = 0)
+                            alpha = 0, standardize=standardize)
       best_ridge_coef <- as.numeric(coef(ridge_cv, s = ridge_cv$lambda.1se))[-1]
 
       alasso.mod <- glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                            alpha = 1,
-                           penalty.factor = 1/abs(best_ridge_coef))
+                           penalty.factor = 1/abs(best_ridge_coef),
+                           standardize=standardize)
 
       alasso_cv <- cv.glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                              type.measure = "mse",
                              nfold = 10,
                              alpha = 1,
                              penalty.factor = 1/abs(best_ridge_coef),
-                             keep = TRUE)
+                             keep = TRUE,
+                             standardize=standardize)
 
       alasso_predict<-predict(alasso.mod, s=alasso_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -435,19 +441,22 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive"){
       ridge_cv <- cv.glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                             type.measure = "mse",
                             nfold = 10,
-                            alpha = 0)
+                            alpha = 0,
+                            standardize=standardize)
       best_ridge_coef <- as.numeric(coef(ridge_cv, s = ridge_cv$lambda.1se))[-1]
 
       alasso.mod <- glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                            alpha = 1,
-                           penalty.factor = 1/abs(best_ridge_coef))
+                           penalty.factor = 1/abs(best_ridge_coef),
+                           standardize=standardize)
 
       alasso_cv <- cv.glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                              type.measure = "mse",
                              nfold = 10,
                              alpha = 1,
                              penalty.factor = 1/abs(best_ridge_coef),
-                             keep = TRUE)
+                             keep = TRUE,
+                             standardize=standardize)
 
       for(i in 1:n_windows){
         alasso_predict<-predict(alasso.mod, s=alasso_cv$lambda.min, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
@@ -499,12 +508,12 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive"){
 
 
 
-maeforecast.aralasso<-function(data=NULL, w_size=NULL, window="recursive"){
+maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", standardize=TRUE){
   if(is.null(data)|is.null(w_size)){
-    return("Have to provide values for data and w_size")
+    stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
-    return("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
   Data = data
@@ -521,7 +530,7 @@ maeforecast.aralasso<-function(data=NULL, w_size=NULL, window="recursive"){
     suppressMessages(require(forecast))
     suppressMessages(require(zoo))
     if(class(model)[1]!="ARIMA"){
-      print("Error: the function only works with model fitted by Arima")
+      stop("The function only works with model fitted by Arima.")
     }else{
       forecasts<-vector()
       trainData<-as.numeric(model[["x"]])
@@ -606,19 +615,22 @@ maeforecast.aralasso<-function(data=NULL, w_size=NULL, window="recursive"){
       ridge_cv <- cv.glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                             type.measure = "mse",
                             nfold = 10,
-                            alpha = 0)
+                            alpha = 0,
+                            standardize=standardize)
       best_ridge_coef <- as.numeric(coef(ridge_cv, s = ridge_cv$lambda.1se))[-1]
 
       alasso.mod <- glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                            alpha = 1,
-                           penalty.factor = 1/abs(best_ridge_coef))
+                           penalty.factor = 1/abs(best_ridge_coef),
+                           standardize=standardize)
 
       alasso_cv <- cv.glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
                              type.measure = "mse",
                              nfold = 10,
                              alpha = 1,
                              penalty.factor = 1/abs(best_ridge_coef),
-                             keep = TRUE)
+                             keep = TRUE,
+                             standardize=standardize)
 
 
       best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.min)
@@ -656,19 +668,22 @@ maeforecast.aralasso<-function(data=NULL, w_size=NULL, window="recursive"){
       ridge_cv <- cv.glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                             type.measure = "mse",
                             nfold = 10,
-                            alpha = 0)
+                            alpha = 0,
+                            standardize=standardize)
       best_ridge_coef <- as.numeric(coef(ridge_cv, s = ridge_cv$lambda.1se))[-1]
 
       alasso.mod <- glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                            alpha = 1,
-                           penalty.factor = 1/abs(best_ridge_coef))
+                           penalty.factor = 1/abs(best_ridge_coef),
+                           standardize=standardize)
 
       alasso_cv <- cv.glmnet(x = X[i:(w_size + i - 1),], y = Y[i:(w_size + i - 1),],
                              type.measure = "mse",
                              nfold = 10,
                              alpha = 1,
                              penalty.factor = 1/abs(best_ridge_coef),
-                             keep = TRUE)
+                             keep = TRUE,
+                             standardize=standardize)
       best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.min)
       best_alasso_coef = as.numeric(best_alasso_coef) [-1]
       nonzero_index<-which(best_alasso_coef!=0)
@@ -703,19 +718,22 @@ maeforecast.aralasso<-function(data=NULL, w_size=NULL, window="recursive"){
     ridge_cv <- cv.glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                           type.measure = "mse",
                           nfold = 10,
-                          alpha = 0)
+                          alpha = 0,
+                          standardize=standardize)
     best_ridge_coef <- as.numeric(coef(ridge_cv, s = ridge_cv$lambda.1se))[-1]
 
     alasso.mod <- glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                          alpha = 1,
-                         penalty.factor = 1/abs(best_ridge_coef))
+                         penalty.factor = 1/abs(best_ridge_coef),
+                         standardize=standardize)
 
     alasso_cv <- cv.glmnet(x = X[1:w_size,], y = Y[1:w_size,],
                            type.measure = "mse",
                            nfold = 10,
                            alpha = 1,
                            penalty.factor = 1/abs(best_ridge_coef),
-                           keep = TRUE)
+                           keep = TRUE,
+                           standardize=standardize)
 
     best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.min)
     best_alasso_coef = as.numeric(best_alasso_coef) [-1]
@@ -779,12 +797,12 @@ maeforecast.aralasso<-function(data=NULL, w_size=NULL, window="recursive"){
 
 
 
-maeforecast.arnet<-function(data=NULL, w_size=NULL, window="recursive", pred=NULL){
+maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", pred=NULL, standardize=TRUE, alphas=c(0.2, 0.8, 0.02)){
   if(is.null(data)|is.null(w_size)){
-    return("Have to provide values for data and w_size")
+    stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
-    return("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
   if(is.null(pred)){
     pred=w_size
@@ -801,12 +819,15 @@ maeforecast.arnet<-function(data=NULL, w_size=NULL, window="recursive", pred=NUL
   trues<-c()
   errors<-c()
 
+  suppressMessages(require(glm2))
+  suppressMessages(require(msaenet))
+
   farima<-function(model=NULL, test=NULL){
     suppressMessages(require(stats))
     suppressMessages(require(forecast))
     suppressMessages(require(zoo))
     if(class(model)[1]!="ARIMA"){
-      print("Error: the function only works with model fitted by Arima")
+      stop("The function only works with model fitted by Arima.")
     }else{
       forecasts<-vector()
       trainData<-as.numeric(model[["x"]])
@@ -886,8 +907,6 @@ maeforecast.arnet<-function(data=NULL, w_size=NULL, window="recursive", pred=NUL
     }
   }
 
-  suppressMessages(require(glm2))
-  suppressMessages(require(msaenet))
   SIS.gaussian<-function (X, Y, pred, scale = F){
     if (scale == T) {
       X <- scale(X)
@@ -911,10 +930,11 @@ maeforecast.arnet<-function(data=NULL, w_size=NULL, window="recursive", pred=NUL
 
       Xsis <- SIS.gaussian(X[1:(w_size + i - 1),],
                            matrix(Y[1:(w_size + i - 1),1]),
-                           pred=pred)
+                           pred=pred,
+                           scale=standardize)
 
       aenet.fit <- aenet(Xsis$Xs, matrix(Y[1:(w_size + i - 1),1]),
-                         alphas = seq(0.2, 0.8, 0.02), seed = 10)
+                         alphas=alphas, seed = 10)
 
       nonzero_index = which(!coef(aenet.fit) == 0)
 
@@ -949,10 +969,11 @@ maeforecast.arnet<-function(data=NULL, w_size=NULL, window="recursive", pred=NUL
 
       Xsis <- SIS.gaussian(X[i:(w_size + i - 1),],
                            matrix(Y[i:(w_size + i - 1),1]),
-                           pred=pred)
+                           pred=pred,
+                           scale=standardize)
 
       aenet.fit <- aenet(Xsis$Xs, matrix(Y[i:(w_size + i - 1),1]),
-                         alphas = seq(0.2, 0.8, 0.02), seed = 10)
+                         alphas=alphas, seed = 10)
 
       nonzero_index = which(!coef(aenet.fit) == 0)
 
@@ -985,10 +1006,11 @@ maeforecast.arnet<-function(data=NULL, w_size=NULL, window="recursive", pred=NUL
   }else{
     Xsis <- SIS.gaussian(X[1:w_size,],
                          matrix(Y[1:w_size,1]),
-                         pred=pred)
+                         pred=pred,
+                         scale=standardize)
 
     aenet.fit <- aenet(Xsis$Xs, matrix(Y[1:w_size,1]),
-                       alphas = seq(0.2, 0.8, 0.02), seed = 10)
+                       alphas=alphas, seed = 10)
 
     nonzero_index = which(!coef(aenet.fit) == 0)
 
@@ -1050,12 +1072,15 @@ maeforecast.arnet<-function(data=NULL, w_size=NULL, window="recursive", pred=NUL
 
 
 
-maeforecast.dfm<-function(data=NULL, w_size=NULL, window="recursive", factor.num=3){
+maeforecast.dfm2<-function(data=NULL, w_size=NULL, window="recursive", factor.num=3){
   if(is.null(data)|is.null(w_size)){
-    return("Have to provide values for data and w_size")
+    stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
-    return("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+  }
+  if("dynfactoR" %in% rownames(installed.packages())==F){
+    stop("Package dynfactorR is not installed. To install, call library(devtools) and then call install_github('rbagd/dynfactoR').")
   }
 
   Data = data
@@ -1069,6 +1094,270 @@ maeforecast.dfm<-function(data=NULL, w_size=NULL, window="recursive", factor.num
 
   suppressMessages(require(nowcasting))
   suppressMessages(require(forecast))
+  suppressMessages(require(dynfactoR))
+
+  if(window=="recursive"){
+    for(i in 1:n_windows){
+      suppressMessages(fac.mod<-dfm(X[1:(w_size + i),], r=factor.num, p=1, q=factor.num))
+      factors<-fac.mod$twostep[1:(w_size + i - 1),]
+      newfactors<-matrix(fac.mod$twostep[w_size+i,], nrow=1)
+
+      AR_dfm<-Arima(Y[1:(w_size+i-1), ], order=c(1,0,0), xreg=factors)
+      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
+
+      y_real<-Y[w_size+i,]
+      e<-y_real-AR_dfm_predict
+
+      trues[i] <- y_real
+      predicts[i] <- AR_dfm_predict
+      errors[i] <- e
+    }
+  }else if(window=="rolling"){
+    for(i in 1:n_windows){
+      suppressMessages(fac.mod<-dfm(X[i:(w_size + i),], r=factor.num, p=1, q=factor.num))
+      factors<-fac.mod$twostep[i:(w_size + i - 1),]
+      newfactors<-matrix(fac.mod$twostep[w_size+i,], nrow=1)
+
+      AR_dfm<-Arima(Y[i:(w_size+i-1), ], order=c(1,0,0), xreg=factors)
+      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
+
+      y_real<-Y[w_size+i,]
+      e<-y_real-AR_dfm_predict
+
+      trues[i] <- y_real
+      predicts[i] <- AR_dfm_predict
+      errors[i] <- e
+    }
+  }else{
+    suppressMessages(fac.mod<-dfm(X, r=factor.num, p=1, q=factor.num))
+    factors<-fac.mod$twostep[1:w_size,]
+    AR_dfm<-Arima(Y[1:w_size, ], order=c(1,0,0), xreg=factors)
+    for(i in 1:n_windows){
+      newfactors<-matrix(fac.mod$twostep[w_size+i,], nrow=1)
+      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
+
+      y_real<-Y[w_size+i,]
+      e<-y_real-AR_dfm_predict
+
+      trues[i] <- y_real
+      predicts[i] <- AR_dfm_predict
+      errors[i] <- e
+    }
+  }
+  mse<-mean(na.omit(errors)^2)
+
+  forecasts<-data.frame(predicts, trues)
+  colnames(forecasts) <-c('Forecasts','Realized')
+  forecasts$Errors<-errors
+  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
+  success_ratio = sum(forecasts$Success)/nrow(forecasts)
+  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
+  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
+  forecasts$True_Direction <- sign(forecasts$Realized)
+  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
+
+
+  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
+
+  return(results)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+maeforecast.dfm<-function(data=NULL, w_size=NULL, window="recursive", factor.num=3){
+  if(is.null(data)|is.null(w_size)){
+    stop("Have to provide values for data and w_size.")
+  }
+  if(window %in% c("recursive", "rolling", "fixed")==F){
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+  }
+
+  Data = data
+  X = matrix(Data[,-1],nrow = dim(Data[,-1])[1])
+  Y = matrix(Data[,1],nrow = dim(Data[,-1])[1])
+  w_size = w_size
+  n_windows = nrow(Data) - w_size
+  predicts<-c()
+  trues<-c()
+  errors<-c()
+
+  suppressMessages(require(nowcasting))
+  suppressMessages(require(forecast))
+
+  VAR<-function (x, p){
+    T <- nrow(x)
+    Y <- x[(p + 1):T, ]
+    X <- c()
+    for (i in 1:p) {
+      X <- cbind(X, x[(p + 1 - i):(T - i), ])
+    }
+    A <- solve(t(X) %*% X) %*% t(X) %*% Y
+    res <- Y - X %*% A
+    return(list(Y = Y, X = X, A = A, res = res))
+  }
+
+
+  K_filter<-function (initx, initV, x, A, C, R, Q){
+    T <- dim(x)[1]
+    N <- dim(x)[2]
+    r <- dim(A)[1]
+    W <- !is.na(x)
+    y <- t(x)
+    xittm <- matrix(0, r, (T + 1))
+    xitt <- matrix(0, r, T)
+    Pttm <- array(0, c(r, r, (T + 1)))
+    Ptt <- array(0, c(r, r, T))
+    xittm[, 1] <- initx
+    Pttm[, , 1] <- initV
+    logl <- c()
+    Ci <- C
+    Ri <- R
+    for (j in 1:T) {
+      C <- Ci[W[j, ], , drop = FALSE]
+      R <- Ri[W[j, ], W[j, ], drop = FALSE]
+      if (FALSE) {
+        xitt[, , j] <- A %*% xittm[, , j]
+        Ptt[, , j] <- C %*% Pttm[, , j] %*% t(C) + R
+      }
+      else {
+        Icov <- C %*% Pttm[, , j] %*% t(C) + R
+        L <- solve(Icov)
+        Ires <- as.numeric(na.omit(y[, j])) - C %*% xittm[,
+                                                          j]
+        G <- Pttm[, , j] %*% t(C) %*% L
+        xitt[, j] <- xittm[, j] + G %*% Ires
+        Ptt[, , j] <- Pttm[, , j] - G %*% C %*% Pttm[, ,
+                                                     j]
+        xittm[, (j + 1)] <- A %*% xitt[, j]
+        Pttm[, , (j + 1)] <- A %*% Ptt[, , j] %*% t(A) +
+          Q
+        d <- length(Ires)
+        S <- C %*% Pttm[, , j] %*% t(C) + R
+        Sinv <- solve(S)
+        if (nrow(R) == 1) {
+          GG <- t(C) %*% solve(R) %*% C
+          detS <- prod(R) %*% det(diag(1, r) + Pttm[, ,
+                                                    j] %*% GG)
+        }
+        else {
+          GG <- t(C) %*% diag(1/diag(R)) %*% C
+          detS <- prod(diag(R)) * det(diag(1, r) + Pttm[,
+                                                        , j] %*% GG)
+        }
+        denom <- (2 * pi)^(d/2) * sqrt(abs(detS))
+        mahal <- sum(t(Ires) %*% Sinv %*% Ires)
+        logl[j] <- -0.5 * mahal - log(denom)
+      }
+    }
+    loglik <- sum(logl, na.rm = TRUE)
+    return(list(xitt = xitt, xittm = xittm, Ptt = Ptt, Pttm = Pttm,
+                loglik = loglik))
+  }
+
+  K_smoother<-function (A, xitt, xittm, Ptt, Pttm, C, R, W){
+    T <- dim(xitt)[2]
+    r <- dim(A)[1]
+    Pttm <- Pttm[, , (1:(dim(Pttm)[3] - 1)), drop = FALSE]
+    xittm <- xittm[, (1:(dim(xittm)[2] - 1)), drop = FALSE]
+    J <- array(0, c(r, r, T))
+    L <- list()
+    K <- list()
+    for (i in 1:(T - 1)) {
+      J[, , i] <- Ptt[, , i] %*% t(A) %*% solve(Pttm[, , (i +
+                                                            1)], tol = 1e-32)
+    }
+    Ci <- C
+    Ri <- R
+    for (i in 1:T) {
+      C <- Ci[W[i, ], , drop = FALSE]
+      R <- Ri[W[i, ], W[i, ], drop = FALSE]
+      L[[i]] <- solve(C %*% Pttm[, , i] %*% t(C) + R)
+      K[[i]] <- Pttm[, , i] %*% t(C) %*% L[[i]]
+    }
+    xitT <- cbind(matrix(0, r, (T - 1)), xitt[, T])
+    PtT <- array(0, c(r, r, T))
+    PtTm <- array(0, c(r, r, T))
+    PtT[, , T] <- Ptt[, , T]
+    PtTm[, , T] <- (diag(1, r) - K[[T]] %*% C) %*% A %*% Ptt[,
+                                                             , (T - 1)]
+    for (j in 1:(T - 1)) {
+      xitT[, (T - j)] <- xitt[, (T - j)] + J[, , (T - j)] %*%
+        (xitT[, (T + 1 - j)] - xittm[, (T + 1 - j)])
+      PtT[, , (T - j)] <- Ptt[, , (T - j)] + J[, , (T - j)] %*%
+        (PtT[, , (T + 1 - j)] - Pttm[, , (T + 1 - j)]) %*%
+        t(J[, , (T - j)])
+    }
+    for (j in 1:(T - 2)) {
+      PtTm[, , (T - j)] <- Ptt[, , (T - j)] %*% t(J[, , (T -
+                                                           j - 1)]) + J[, , (T - j)] %*% (PtTm[, , (T - j +
+                                                                                                      1)] - A %*% Ptt[, , (T - j)]) %*% t(J[, , (T - j -
+                                                                                                                                                   1)])
+    }
+    return(list(xitT = xitT, PtT = PtT, PtTm = PtTm))
+  }
+
+  Estep<-function (y, A, C, Q, R, initx, initV, W){
+    os <- dim(y)[1]
+    T <- dim(y)[2]
+    ss <- nrow(A)
+    kf <- K_filter(initx, initV, t(y), A, C, R, Q)
+    ks <- K_smoother(A, kf$xitt, kf$xittm, kf$Ptt, kf$Pttm, C,
+                     R, W)
+    xsmooth <- ks$xitT
+    Vsmooth <- ks$PtT
+    Wsmooth <- ks$PtTm
+    delta <- matrix(0, os, ss)
+    gamma <- matrix(0, ss, ss)
+    beta <- matrix(0, ss, ss)
+    for (t in 1:T) {
+      z <- y[, t]
+      z[is.na(z)] <- 0
+      delta <- delta + z %*% t(xsmooth[, t])
+      gamma <- gamma + xsmooth[, t] %*% t(xsmooth[, t]) + Vsmooth[,
+                                                                  , t]
+      if (t > 1) {
+        beta <- beta + xsmooth[, t] %*% t(xsmooth[, (t -
+                                                       1)]) + Wsmooth[, , t]
+      }
+    }
+    gamma1 <- gamma - xsmooth[, T] %*% t(xsmooth[, T]) - Vsmooth[,
+                                                                 , T]
+    gamma2 <- gamma - xsmooth[, 1] %*% t(xsmooth[, 1]) - Vsmooth[,
+                                                                 , 1]
+    x1 <- xsmooth[, 1]
+    V1 <- Vsmooth[, , 1]
+    return(list(beta_t = beta, gamma_t = gamma, delta_t = delta,
+                gamma1_t = gamma1, gamma2_t = gamma2, x1 = x1, V1 = V1,
+                loglik_t = kf$loglik, xsmooth = xsmooth))
+  }
+
+  em_converged<-function (loglik, previous_loglik, threshold = 1e-04, check_increased = TRUE){
+    converged <- FALSE
+    decrease <- 0
+    if (check_increased == TRUE) {
+      if (loglik - previous_loglik < -0.001) {
+        decrease <- 1
+      }
+    }
+    delta_loglik <- abs(loglik - previous_loglik)
+    avg_loglik <- (abs(loglik) + abs(previous_loglik) + .Machine$double.eps)/2
+    if ((delta_loglik/avg_loglik) < threshold) {
+      converged <- TRUE
+    }
+    return(converged)
+  }
 
   dfm<-function (X, r, p, q, max_iter = 100, threshold = 1e-04, rQ, rC){
     if (missing(rQ)) {
@@ -1315,14 +1604,12 @@ maeforecast.dfm<-function(data=NULL, w_size=NULL, window="recursive", factor.num
 
 
 
-
-
 maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive"){
   if(is.null(data)|is.null(w_size)){
-    return("Have to provide values for data and w_size")
+    stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
-    return("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
   Data = ts(data[,1], frequency=12)
@@ -1337,7 +1624,7 @@ maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive"){
     suppressMessages(require(forecast))
     suppressMessages(require(zoo))
     if(class(model)[1]!="ARIMA"){
-      print("Error: the function only works with model fitted by Arima")
+      stop("The function only works with model fitted by Arima.")
     }else{
       forecasts<-vector()
       trainData<-as.numeric(model[["x"]])
@@ -1465,31 +1752,20 @@ maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive"){
 
 
 
-
-
-
-
-
-maeforecast<-function(data=NULL, model="ar", w_size=NULL, window="recursive", pred=NULL, factor.num=NULL){
-  if(model %in% c("lasso", "arlasso", "ridge", "alasso", "aralasso", "arnet", "dfm", "ar")==F){
-    return("Unsupported model type.")
+maeforecast<-function(data=NULL, model="ar", w_size=NULL, window="recursive", ...){
+  if(model %in% c("ar", "lasso", "postlasso", "ridge",
+                  "alasso", "postlasso", "postnet",
+                  "dfm")==FALSE){
+    stop("Unsupported model type. Refer to help(maeforecast) for a list of supported models.")
   }
-  if(model=="ar"){
-    results<-maeforecast.ar(data=data, w_size=w_size, window=window)
-  }else if(model=="lasso"){
-    results<-maeforecast.lasso(data=data, w_size=w_size, window=window)
-  }else if(model=="arlasso"){
-    results<-maeforecast.arlasso(data=data, w_size=w_size, window=window)
-  }else if(model=="ridge"){
-    results<-maeforecast.ridge(data=data, w_size=w_size, window=window)
-  }else if(model=="alasso"){
-    results<-maeforecast.alasso(data=data, w_size=w_size, window=window)
-  }else if (model=="aralasso"){
-    results<-maeforecast.aralasso(data=data, w_size=w_size, window=window)
-  }else if(model=="arnet"){
-    results<-maeforecast.arnet(data=data, w_size=w_size, window=window, pred=pred)
-  }else{
-    results<-maeforecast.dfm(data=data, w_size=w_size, window=window, factor.num=factor.num)
-  }
+  FUN<-paste("maeforecast.", model, sep="")
+  FUN<-match.fun(FUN)
+  results<-FUN(data=data, w_size=w_size, window=window, ...)
   return(results)
 }
+
+
+
+
+
+
