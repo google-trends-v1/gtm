@@ -14,7 +14,9 @@ Imports:
     forecast,
     glm2,
     msaenet,
-    boot
+    boot,
+    glmnet,
+    matrixStats
 Suggests:
     devtools
 Author: Zehua Wu [aut, cre]

@@ -20,7 +20,7 @@ maeforecast.simplified(data, model="ar", w_size, window="recursive", ...)
 
 }
 \details{
-Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"dfm"}(Dynamic Factor Model).
+Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"} & \code{"dfm2"} (Dynamic Factor Models).
 
 %%  ~~ If necessary, more details than the description above ~~
 }

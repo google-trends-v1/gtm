@@ -26,7 +26,7 @@ Bagging(data, boot, sim="fixed", l=12L, norm=TRUE, n.sim=NROW(data),
   \item{endcorr}{A logical variable indicating whether end corrections are to be applied when sim is "fixed". When sim is "geom", endcorr is automatically set to TRUE; endcorr is not used when sim is "model" or "scramble".}
   \item{norm}{A logical argument indicating whether normal margins should be used for phase scrambling. If norm is FALSE then margins corresponding to the exact empirical margins are used.}
   \item{n.sim}{The length of the simulated time series. Defualt is the length of the original time series.}
-  \item{model}{character, indicating which model should be used to make the forecasts. Default is an AR(1) model. Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"dfm"}(Dynamic Factor Model).
+  \item{model}{character, indicating which model should be used to make the forecasts. Default is an AR(1) model. Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"}, \code{"dfm2"} (Dynamic Factor Models).
 %%     ~~Describe \code{FUN} here~~
 }
 
@@ -41,6 +41,10 @@ Bagging(data, boot, sim="fixed", l=12L, norm=TRUE, n.sim=NROW(data),
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
+This function returns the same list of results as does the \code{\link{maeforecast}} function.
+  \item{Forecasts }{data matrix, containing the point forecasts, realized values, forecast errors, signs of the forecasts and realized values, and success in predicting the signs.}
+  \item{MSE }{numeric, mean squred error of the point forecasts.}
+  \item{SRatio}{numeric, success ratio of the point forecasts. Success is claimed when the point forecasts and realized values have the same sign.}
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -54,7 +58,7 @@ Bagging(data, boot, sim="fixed", l=12L, norm=TRUE, n.sim=NROW(data),
 %%  ~~who you are~~
 }
 \note{
-For more detailed description of the arguments used in the bootstrapping process, refer to \code{\link{btseries}}.
+For more detailed description of the arguments used in the bootstrapping process, refer to \code{\link{tsboot}}.
 %%  ~~further notes~~
 }
 

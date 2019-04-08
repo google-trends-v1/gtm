@@ -12,5 +12,6 @@ Metrics<-function(pred=NULL, true=NULL){
   forecasts$True_Direction <- sign(forecasts$Realized)
   forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
   results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
+  class(results)<-"Maeforecast"
   return(results)
 }

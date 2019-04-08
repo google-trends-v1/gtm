@@ -8,5 +8,6 @@ Bagging<-function(data=NULL, boot=NULL, model="ar", w_size=NULL, sim="fixed", l=
                   endcorr=endcorr, ...)$t
   results<-t(results)
   forecasts<-rowMeans(results)
-  return(forecasts)
+  trues<-data[(w_size+1):nrow(data),1]
+  return(Metrics(pred=forecasts, true=trues))
 }

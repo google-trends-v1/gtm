@@ -15,6 +15,8 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", standard
   trues<-c()
   errors<-c()
 
+  suppressMessages(require(glmnet))
+
   if(window=="recursive"){
     for(i in 1:n_windows){
       lasso.mod<-glmnet(x = X[1:(w_size + i - 1),], y = Y[1:(w_size + i - 1),],
@@ -71,22 +73,7 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", standard
       errors[i]<-e
     }
   }
-
-  mse<-mean(na.omit(errors)^2)
-
-  forecasts<-data.frame(predicts, trues)
-  colnames(forecasts) <-c('Forecasts','Realized')
-  forecasts$Errors<-errors
-  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-  success_ratio = sum(forecasts$Success)/nrow(forecasts)
-  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-  forecasts$True_Direction <- sign(forecasts$Realized)
-  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
-
-
-  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
-
+  results<-Metrics(pred=predicts, true=trues)
   return(results)
 }
 
@@ -117,6 +104,9 @@ maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", stan
   predicts<-c()
   trues<-c()
   errors<-c()
+
+  suppressMessages(require(glmnet))
+  suppressMessages(require(forecast))
 
   if(window=="recursive"){
     for(i in 1:n_windows){
@@ -235,21 +225,7 @@ maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", stan
       errors<-trues-predicts
     }
   }
-  mse<-mean(na.omit(errors)^2)
-
-  forecasts<-data.frame(predicts, trues)
-  colnames(forecasts) <-c('Forecasts','Realized')
-  forecasts$Errors<-errors
-  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-  success_ratio = sum(forecasts$Success)/nrow(forecasts)
-  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-  forecasts$True_Direction <- sign(forecasts$Realized)
-  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
-
-
-  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
-
+  results<-Metrics(pred=predicts, true=trues)
   return(results)
 }
 
@@ -277,6 +253,8 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive", standard
   predicts<-c()
   trues<-c()
   errors<-c()
+
+  suppressMessages(require(glmnet))
 
   if(window=="recursive"){
     for(i in 1:n_windows){
@@ -334,23 +312,8 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive", standard
       errors[i] <- e
     }
   }
-  mse<-mean(na.omit(errors)^2)
-
-  forecasts<-data.frame(predicts, trues)
-  colnames(forecasts) <-c('Forecasts','Realized')
-  forecasts$Errors<-errors
-  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-  success_ratio = sum(forecasts$Success)/nrow(forecasts)
-  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-  forecasts$True_Direction <- sign(forecasts$Realized)
-  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
-
-
-  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
-
+  results<-Metrics(pred=predicts, true=trues)
   return(results)
-
 }
 
 
@@ -378,6 +341,7 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", standar
   trues<-c()
   errors<-c()
 
+  suppressMessages(require(glmnet))
 
   if(window=="recursive"){
     for (i in 1:n_windows) {
@@ -468,22 +432,8 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", standar
         errors[i]<- e
       }
     }
-    mse<-mean(na.omit(errors)^2)
-
-    forecasts<-data.frame(predicts, trues)
-    colnames(forecasts) <-c('Forecasts','Realized')
-    forecasts$Errors<-errors
-    forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-    success_ratio = sum(forecasts$Success)/nrow(forecasts)
-    forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-    forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-    forecasts$True_Direction <- sign(forecasts$Realized)
-    forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
-
-
-    results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
-
-    return(results)
+  results<-Metrics(pred=predicts, true=trues)
+  return(results)
 
 }
 
@@ -524,6 +474,9 @@ maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", sta
   predicts<-c()
   trues<-c()
   errors<-c()
+
+  suppressMessages(require(forecast))
+  suppressMessages(require(glmnet))
 
   farima<-function(model=NULL, test=NULL){
     suppressMessages(require(stats))
@@ -763,21 +716,7 @@ maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", sta
       errors<-trues-predicts
     }
   }
-  mse<-mean(na.omit(errors)^2)
-
-  forecasts<-data.frame(predicts, trues)
-  colnames(forecasts) <-c('Forecasts','Realized')
-  forecasts$Errors<-errors
-  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-  success_ratio = sum(forecasts$Success)/nrow(forecasts)
-  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-  forecasts$True_Direction <- sign(forecasts$Realized)
-  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
-
-
-  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
-
+  results<-Metrics(pred=predicts, true=trues)
   return(results)
 
 }
@@ -810,6 +749,7 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", pred=N
     pred=pred
   }
 
+
   Data = data
   X = matrix(Data[,-1],nrow = dim(Data[,-1])[1])
   Y = matrix(Data[,1],nrow = dim(Data[,-1])[1])
@@ -821,6 +761,8 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", pred=N
 
   suppressMessages(require(glm2))
   suppressMessages(require(msaenet))
+  suppressMessages(require(forecast))
+  suppressMessages(require(glmnet))
 
   farima<-function(model=NULL, test=NULL){
     suppressMessages(require(stats))
@@ -1039,23 +981,86 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", pred=N
       errors<-trues-predicts
     }
   }
+  results<-Metrics(pred=predicts, true=trues)
+  return(results)
+}
 
 
-  mse<-mean(na.omit(errors)^2)
-
-  forecasts<-data.frame(predicts, trues)
-  colnames(forecasts) <-c('Forecasts','Realized')
-  forecasts$Errors<-errors
-  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-  success_ratio = sum(forecasts$Success)/nrow(forecasts)
-  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-  forecasts$True_Direction <- sign(forecasts$Realized)
-  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
 
 
-  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
 
+
+
+
+maeforecast.dfm2<-function(data=NULL, w_size=NULL, window="recursive", factor.num=3, method="two-step"){
+  if(is.null(data)|is.null(w_size)){
+    stop("Have to provide values for data and w_size.")
+  }
+  if(window %in% c("recursive", "rolling", "fixed")==F){
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+  }
+
+  Data = data
+  X = matrix(Data[,-1],nrow = dim(Data[,-1])[1])
+  Y = matrix(Data[,1],nrow = dim(Data[,-1])[1])
+  w_size = w_size
+  n_windows = nrow(Data) - w_size
+  predicts<-c()
+  trues<-c()
+  errors<-c()
+
+  suppressMessages(require(nowcasting))
+  suppressMessages(require(forecast))
+
+  if(window=="recursive"){
+    for(i in 1:n_windows){
+      allfactors<-clust.factor(X[1:(w_size + i),], fac.num=factor.num, method=method)
+      factors<-allfactors[1:(w_size + i - 1),]
+      newfactors<-matrix(allfactors[w_size+i,], nrow=1)
+
+      AR_dfm<-Arima(Y[1:(w_size+i-1), ], order=c(1,0,0), xreg=factors)
+      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
+
+      y_real<-Y[w_size+i,]
+      e<-y_real-AR_dfm_predict
+
+      trues[i] <- y_real
+      predicts[i] <- AR_dfm_predict
+      errors[i] <- e
+    }
+  }else if(window=="rolling"){
+    for(i in 1:n_windows){
+      allfactors<-clust.factor(X[i:(w_size + i),], fac.num=factor.num, method=method)
+      factors<-allfactors[i:(w_size + i - 1),]
+      newfactors<-matrix(allfactors[w_size+i,], nrow=1)
+
+      AR_dfm<-Arima(Y[i:(w_size+i-1), ], order=c(1,0,0), xreg=factors)
+      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
+
+      y_real<-Y[w_size+i,]
+      e<-y_real-AR_dfm_predict
+
+      trues[i] <- y_real
+      predicts[i] <- AR_dfm_predict
+      errors[i] <- e
+    }
+  }else{
+    allfactors<-clust.factor(X, fac.num=factor.num, method=method)
+    factors<-allfactors[1:w_size,]
+    AR_dfm<-Arima(Y[1:w_size, ], order=c(1,0,0), xreg=factors)
+    for(i in 1:n_windows){
+      newfactors<-matrix(allfactors[w_size+i,], nrow=1)
+      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
+
+      y_real<-Y[w_size+i,]
+      e<-y_real-AR_dfm_predict
+
+      trues[i] <- y_real
+      predicts[i] <- AR_dfm_predict
+      errors[i] <- e
+    }
+  }
+  results<-Metrics(pred=predicts, true=trues)
   return(results)
 }
 
@@ -1072,7 +1077,10 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", pred=N
 
 
 
-maeforecast.dfm2<-function(data=NULL, w_size=NULL, window="recursive", factor.num=3){
+
+
+
+maeforecast.dfm<-function(data=NULL, w_size=NULL, window="recursive", factor.num=3){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -1098,7 +1106,7 @@ maeforecast.dfm2<-function(data=NULL, w_size=NULL, window="recursive", factor.nu
 
   if(window=="recursive"){
     for(i in 1:n_windows){
-      suppressMessages(fac.mod<-dfm(X[1:(w_size + i),], r=factor.num, p=1, q=factor.num))
+      fac.mod<-dynfactoR::dfm(X[1:(w_size + i),], r=factor.num, p=1, q=factor.num)
       factors<-fac.mod$twostep[1:(w_size + i - 1),]
       newfactors<-matrix(fac.mod$twostep[w_size+i,], nrow=1)
 
@@ -1114,7 +1122,7 @@ maeforecast.dfm2<-function(data=NULL, w_size=NULL, window="recursive", factor.nu
     }
   }else if(window=="rolling"){
     for(i in 1:n_windows){
-      suppressMessages(fac.mod<-dfm(X[i:(w_size + i),], r=factor.num, p=1, q=factor.num))
+      fac.mod<-dynfactoR::dfm(X[i:(w_size + i),], r=factor.num, p=1, q=factor.num)
       factors<-fac.mod$twostep[i:(w_size + i - 1),]
       newfactors<-matrix(fac.mod$twostep[w_size+i,], nrow=1)
 
@@ -1129,7 +1137,7 @@ maeforecast.dfm2<-function(data=NULL, w_size=NULL, window="recursive", factor.nu
       errors[i] <- e
     }
   }else{
-    suppressMessages(fac.mod<-dfm(X, r=factor.num, p=1, q=factor.num))
+    fac.mod<-dynfactoR::dfm(X, r=factor.num, p=1, q=factor.num)
     factors<-fac.mod$twostep[1:w_size,]
     AR_dfm<-Arima(Y[1:w_size, ], order=c(1,0,0), xreg=factors)
     for(i in 1:n_windows){
@@ -1144,21 +1152,7 @@ maeforecast.dfm2<-function(data=NULL, w_size=NULL, window="recursive", factor.nu
       errors[i] <- e
     }
   }
-  mse<-mean(na.omit(errors)^2)
-
-  forecasts<-data.frame(predicts, trues)
-  colnames(forecasts) <-c('Forecasts','Realized')
-  forecasts$Errors<-errors
-  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-  success_ratio = sum(forecasts$Success)/nrow(forecasts)
-  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-  forecasts$True_Direction <- sign(forecasts$Realized)
-  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
-
-
-  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
-
+  results<-Metrics(pred=predicts, true=trues)
   return(results)
 }
 
@@ -1170,13 +1164,7 @@ maeforecast.dfm2<-function(data=NULL, w_size=NULL, window="recursive", factor.nu
 
 
 
-
-
-
-
-
-
-maeforecast.dfm<-function(data=NULL, w_size=NULL, window="recursive", factor.num=3){
+maeforecast.rf<-function(data=NULL, w_size=NULL, window="recursive", ntree=500, replace=TRUE){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -1191,411 +1179,46 @@ maeforecast.dfm<-function(data=NULL, w_size=NULL, window="recursive", factor.num
   n_windows = nrow(Data) - w_size
   predicts<-c()
   trues<-c()
-  errors<-c()
 
-  suppressMessages(require(nowcasting))
-  suppressMessages(require(forecast))
-
-  VAR<-function (x, p){
-    T <- nrow(x)
-    Y <- x[(p + 1):T, ]
-    X <- c()
-    for (i in 1:p) {
-      X <- cbind(X, x[(p + 1 - i):(T - i), ])
-    }
-    A <- solve(t(X) %*% X) %*% t(X) %*% Y
-    res <- Y - X %*% A
-    return(list(Y = Y, X = X, A = A, res = res))
-  }
-
-
-  K_filter<-function (initx, initV, x, A, C, R, Q){
-    T <- dim(x)[1]
-    N <- dim(x)[2]
-    r <- dim(A)[1]
-    W <- !is.na(x)
-    y <- t(x)
-    xittm <- matrix(0, r, (T + 1))
-    xitt <- matrix(0, r, T)
-    Pttm <- array(0, c(r, r, (T + 1)))
-    Ptt <- array(0, c(r, r, T))
-    xittm[, 1] <- initx
-    Pttm[, , 1] <- initV
-    logl <- c()
-    Ci <- C
-    Ri <- R
-    for (j in 1:T) {
-      C <- Ci[W[j, ], , drop = FALSE]
-      R <- Ri[W[j, ], W[j, ], drop = FALSE]
-      if (FALSE) {
-        xitt[, , j] <- A %*% xittm[, , j]
-        Ptt[, , j] <- C %*% Pttm[, , j] %*% t(C) + R
-      }
-      else {
-        Icov <- C %*% Pttm[, , j] %*% t(C) + R
-        L <- solve(Icov)
-        Ires <- as.numeric(na.omit(y[, j])) - C %*% xittm[,
-                                                          j]
-        G <- Pttm[, , j] %*% t(C) %*% L
-        xitt[, j] <- xittm[, j] + G %*% Ires
-        Ptt[, , j] <- Pttm[, , j] - G %*% C %*% Pttm[, ,
-                                                     j]
-        xittm[, (j + 1)] <- A %*% xitt[, j]
-        Pttm[, , (j + 1)] <- A %*% Ptt[, , j] %*% t(A) +
-          Q
-        d <- length(Ires)
-        S <- C %*% Pttm[, , j] %*% t(C) + R
-        Sinv <- solve(S)
-        if (nrow(R) == 1) {
-          GG <- t(C) %*% solve(R) %*% C
-          detS <- prod(R) %*% det(diag(1, r) + Pttm[, ,
-                                                    j] %*% GG)
-        }
-        else {
-          GG <- t(C) %*% diag(1/diag(R)) %*% C
-          detS <- prod(diag(R)) * det(diag(1, r) + Pttm[,
-                                                        , j] %*% GG)
-        }
-        denom <- (2 * pi)^(d/2) * sqrt(abs(detS))
-        mahal <- sum(t(Ires) %*% Sinv %*% Ires)
-        logl[j] <- -0.5 * mahal - log(denom)
-      }
-    }
-    loglik <- sum(logl, na.rm = TRUE)
-    return(list(xitt = xitt, xittm = xittm, Ptt = Ptt, Pttm = Pttm,
-                loglik = loglik))
-  }
-
-  K_smoother<-function (A, xitt, xittm, Ptt, Pttm, C, R, W){
-    T <- dim(xitt)[2]
-    r <- dim(A)[1]
-    Pttm <- Pttm[, , (1:(dim(Pttm)[3] - 1)), drop = FALSE]
-    xittm <- xittm[, (1:(dim(xittm)[2] - 1)), drop = FALSE]
-    J <- array(0, c(r, r, T))
-    L <- list()
-    K <- list()
-    for (i in 1:(T - 1)) {
-      J[, , i] <- Ptt[, , i] %*% t(A) %*% solve(Pttm[, , (i +
-                                                            1)], tol = 1e-32)
-    }
-    Ci <- C
-    Ri <- R
-    for (i in 1:T) {
-      C <- Ci[W[i, ], , drop = FALSE]
-      R <- Ri[W[i, ], W[i, ], drop = FALSE]
-      L[[i]] <- solve(C %*% Pttm[, , i] %*% t(C) + R)
-      K[[i]] <- Pttm[, , i] %*% t(C) %*% L[[i]]
-    }
-    xitT <- cbind(matrix(0, r, (T - 1)), xitt[, T])
-    PtT <- array(0, c(r, r, T))
-    PtTm <- array(0, c(r, r, T))
-    PtT[, , T] <- Ptt[, , T]
-    PtTm[, , T] <- (diag(1, r) - K[[T]] %*% C) %*% A %*% Ptt[,
-                                                             , (T - 1)]
-    for (j in 1:(T - 1)) {
-      xitT[, (T - j)] <- xitt[, (T - j)] + J[, , (T - j)] %*%
-        (xitT[, (T + 1 - j)] - xittm[, (T + 1 - j)])
-      PtT[, , (T - j)] <- Ptt[, , (T - j)] + J[, , (T - j)] %*%
-        (PtT[, , (T + 1 - j)] - Pttm[, , (T + 1 - j)]) %*%
-        t(J[, , (T - j)])
-    }
-    for (j in 1:(T - 2)) {
-      PtTm[, , (T - j)] <- Ptt[, , (T - j)] %*% t(J[, , (T -
-                                                           j - 1)]) + J[, , (T - j)] %*% (PtTm[, , (T - j +
-                                                                                                      1)] - A %*% Ptt[, , (T - j)]) %*% t(J[, , (T - j -
-                                                                                                                                                   1)])
-    }
-    return(list(xitT = xitT, PtT = PtT, PtTm = PtTm))
-  }
-
-  Estep<-function (y, A, C, Q, R, initx, initV, W){
-    os <- dim(y)[1]
-    T <- dim(y)[2]
-    ss <- nrow(A)
-    kf <- K_filter(initx, initV, t(y), A, C, R, Q)
-    ks <- K_smoother(A, kf$xitt, kf$xittm, kf$Ptt, kf$Pttm, C,
-                     R, W)
-    xsmooth <- ks$xitT
-    Vsmooth <- ks$PtT
-    Wsmooth <- ks$PtTm
-    delta <- matrix(0, os, ss)
-    gamma <- matrix(0, ss, ss)
-    beta <- matrix(0, ss, ss)
-    for (t in 1:T) {
-      z <- y[, t]
-      z[is.na(z)] <- 0
-      delta <- delta + z %*% t(xsmooth[, t])
-      gamma <- gamma + xsmooth[, t] %*% t(xsmooth[, t]) + Vsmooth[,
-                                                                  , t]
-      if (t > 1) {
-        beta <- beta + xsmooth[, t] %*% t(xsmooth[, (t -
-                                                       1)]) + Wsmooth[, , t]
-      }
-    }
-    gamma1 <- gamma - xsmooth[, T] %*% t(xsmooth[, T]) - Vsmooth[,
-                                                                 , T]
-    gamma2 <- gamma - xsmooth[, 1] %*% t(xsmooth[, 1]) - Vsmooth[,
-                                                                 , 1]
-    x1 <- xsmooth[, 1]
-    V1 <- Vsmooth[, , 1]
-    return(list(beta_t = beta, gamma_t = gamma, delta_t = delta,
-                gamma1_t = gamma1, gamma2_t = gamma2, x1 = x1, V1 = V1,
-                loglik_t = kf$loglik, xsmooth = xsmooth))
-  }
-
-  em_converged<-function (loglik, previous_loglik, threshold = 1e-04, check_increased = TRUE){
-    converged <- FALSE
-    decrease <- 0
-    if (check_increased == TRUE) {
-      if (loglik - previous_loglik < -0.001) {
-        decrease <- 1
-      }
-    }
-    delta_loglik <- abs(loglik - previous_loglik)
-    avg_loglik <- (abs(loglik) + abs(previous_loglik) + .Machine$double.eps)/2
-    if ((delta_loglik/avg_loglik) < threshold) {
-      converged <- TRUE
-    }
-    return(converged)
-  }
-
-  dfm<-function (X, r, p, q, max_iter = 100, threshold = 1e-04, rQ, rC){
-    if (missing(rQ)) {
-      rQ <- ""
-    }
-    if (missing(rC)) {
-      rC <- ""
-    }
-    if (missing(q)) {
-      q <- r
-    }
-    if (q > r) {
-      stop("r must be larger than q.")
-    }
-    T <- dim(X)[1]
-    N <- dim(X)[2]
-    x <- apply(X, 2, function(z) {
-      (z - mean(z, na.rm = TRUE))/sd(z, na.rm = TRUE)
-    })
-    Mx <- apply(X, 2, mean, na.rm = TRUE)
-    Wx <- apply(X, 2, sd, na.rm = TRUE)
-    W <- !is.na(x)
-    A <- rbind(matrix(0, nrow = r, ncol = r * p), diag(1, nrow = r *
-                                                         (p - 1), ncol = r * p))
-    Q <- matrix(0, nrow = p * r, ncol = p * r)
-    Q[1:r, 1:r] <- diag(1, r)
-    eigen.decomp <- eigen(cov(x, use = "complete.obs"))
-    v <- eigen.decomp$vectors[, 1:r]
-    d <- eigen.decomp$values[1:r]
-    chi <- x %*% v %*% t(v)
-    d <- diag(1, r)
-    F <- x %*% v
-    F_pc <- F
-    F <- na.omit(F)
-    if (p > 0) {
-      if (rQ == "identity") {
-        fit <- VAR(F, p)
-        A[1:r, 1:(r * p)] <- t(fit$A)
-        Q[1:r, 1:r] <- diag(1, r)
-      }
-      else {
-        fit <- VAR(F, p)
-        A[1:r, 1:(r * p)] <- t(fit$A)
-        H <- cov(fit$res)
-        if (r > q) {
-          q.decomp <- eigen(H)
-          P <- q.decomp$vectors[, 1:q, drop = FALSE]
-          M <- q.decomp$values[1:q]
-          if (q == 1) {
-            P <- P * P[1, ]
-            Q[1:r, 1:r] <- P %*% t(P) * M
-          }
-          else {
-            P <- P %*% diag(sign(P[1, ]))
-            Q[1:r, 1:r] <- P %*% diag(M) %*% t(P)
-          }
-        }
-        else {
-          Q[1:r, 1:r] <- H
-        }
-      }
-    }
-    R <- diag(diag(cov(x - chi, use = "complete.obs")))
-    Z <- fit$X
-    initx <- Z[1, ]
-    initV <- matrix(ginv(kronecker(A, A)) %*% as.numeric(Q),
-                    ncol = r * p, nrow = r * p)
-    C <- cbind(v, matrix(0, nrow = N, ncol = r * (p - 1)))
-    previous_loglik <- -.Machine$double.xmax
-    loglik <- 0
-    num_iter <- 0
-    LL <- c()
-    converged <- 0
-    kf_res <- K_filter(initx, initV, x, A, C, R, Q)
-    ks_res <- K_smoother(A, kf_res$xitt, kf_res$xittm, kf_res$Ptt,
-                         kf_res$Pttm, C, R, W)
-    xsmooth <- ks_res$xitT
-    Vsmooth <- ks_res$PtT
-    Wsmooth <- ks_res$PtTm
-    F_kal <- t(xsmooth[1:r, , drop = FALSE])
-    if (rC == "upper" & (r > 1)) {
-      dimC <- dim(C[, 1:r])
-      rK <- rep(0, (r - 1) * r/2)
-      irC <- which(matrix(upper.tri(C[, 1:r]) + 0) == 1)
-      rH <- matrix(0, nrow = length(rK), ncol = prod(dimC))
-      for (i in 1:length(rK)) {
-        rH[i, irC[i]] <- 1
-      }
-    }
-    while ((num_iter < max_iter) & !converged) {
-      em_res <- Estep(t(x), A, C, Q, R, initx, initV, W)
-      beta <- em_res$beta_t
-      gamma <- em_res$gamma_t
-      delta <- em_res$delta_t
-      gamma1 <- em_res$gamma1_t
-      gamma2 <- em_res$gamma2_t
-      P1sum <- em_res$V1 + em_res$x1 %*% t(em_res$x1)
-      x1sum <- em_res$x1
-      loglik <- em_res$loglik_t
-      num_iter <- num_iter + 1
-      if (rC == "upper" & (r > 1)) {
-        fp <- matrix(delta[, 1:r] %*% ginv(gamma[1:r, 1:r]))
-        kronCR <- kronecker(ginv(gamma[1:r, 1:r]), R)
-        sp <- kronCR %*% t(rH) %*% ginv(rH %*% kronCR %*%
-                                          t(rH)) %*% (rK - rH %*% fp)
-        C[, 1:r] <- matrix(fp + sp, nrow = dimC[1], ncol = dimC[2])
-      }
-      else {
-        C[, 1:r] <- delta[, 1:r] %*% ginv(gamma[1:r, 1:r])
-      }
-      if (p > 0) {
-        A_update <- beta[1:r, 1:(r * p), drop = FALSE] %*%
-          solve(gamma1[1:(r * p), 1:(r * p)])
-        A[1:r, 1:(r * p)] <- A_update
-        if (rQ != "identity") {
-          H <- (gamma2[1:r, 1:r] - A_update %*% t(beta[1:r,
-                                                       1:(r * p), drop = FALSE]))/(T - 1)
-          if (r > q) {
-            h.decomp <- svd(H)
-            P <- h.decomp$v[, 1:q, drop = FALSE]
-            M <- h.decomp$d[1:q]
-            if (q == 1) {
-              P <- P * P[1, ]
-              Q[1:r, 1:r] <- P %*% t(P) * M
-            }
-            else {
-              P <- P %*% diag(sign(P[1, ]))
-              Q[1:r, 1:r] <- P %*% diag(M) %*% t(P)
-            }
-          }
-          else {
-            Q[1:r, 1:r] <- H
-          }
-        }
-      }
-      xx <- as.matrix(na.omit(x))
-      R <- (t(xx) %*% xx - C %*% t(delta))/T
-      RR <- diag(R)
-      RR[RR < 1e-07] <- 1e-07
-      R <- diag(RR)
-      R <- diag(diag(R))
-      LL <- c(LL, loglik)
-      initx <- x1sum
-      initV <- P1sum - initx %*% t(initx)
-      converged <- em_converged(loglik, previous_loglik, threshold = threshold)
-      previous_loglik <- loglik
-      if (num_iter < 25) {
-        converged <- FALSE
-      }
-    }
-    if (converged == TRUE) {
-      cat("Converged after", num_iter, "iterations.\n")
-    }
-    else {
-      cat("Maximum number of iterations reached.\n")
-    }
-    kf <- K_filter(initx, initV, x, A, C, R, Q)
-    ks <- K_smoother(A, kf$xitt, kf$xittm, kf$Ptt, kf$Pttm, C,
-                     R, W)
-    xsmooth <- ks$xitT
-    chi <- t(xsmooth) %*% t(C) %*% diag(Wx) + kronecker(matrix(1,
-                                                               T, 1), t(Mx))
-    F_hat <- t(xsmooth[1:r, , drop = FALSE])
-    final_object <- list(pca = F_pc, qml = F_hat, twostep = F_kal,
-                         A = A[1:r, ], C = C[, 1:r], Q = Q[1:q, 1:q], R = R, p = p,
-                         data = x)
-    class(final_object) <- c("dfm", "list")
-    return(final_object)
-  }
+  suppressMessages(require(randomForest))
 
   if(window=="recursive"){
     for(i in 1:n_windows){
-      suppressMessages(fac.mod<-dfm(X[1:(w_size + i),], r=factor.num, p=1, q=factor.num))
-      factors<-fac.mod$twostep[1:(w_size + i - 1),]
-      newfactors<-matrix(fac.mod$twostep[w_size+i,], nrow=1)
-
-      AR_dfm<-Arima(Y[1:(w_size+i-1), ], order=c(1,0,0), xreg=factors)
-      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
-
-      y_real<-Y[w_size+i,]
-      e<-y_real-AR_dfm_predict
-
-      trues[i] <- y_real
-      predicts[i] <- AR_dfm_predict
-      errors[i] <- e
+      X.train<-X[1:(w_size+i-1),]
+      Y.train<-Y[1:(w_size+i-1),]
+      X.test<-X[(w_size + i),]
+      Y.test<-Y[(w_size + i),]
+      rf.mod<-randomForest(x=X.train, y=Y.train)
+      rf_predict<-predict(rf.mod, newdata=X.test)
+      predicts[i]<-rf_predict
+      trues[i]<-Y.test
     }
   }else if(window=="rolling"){
     for(i in 1:n_windows){
-      suppressMessages(fac.mod<-dfm(X[i:(w_size + i),], r=factor.num, p=1, q=factor.num))
-      factors<-fac.mod$twostep[i:(w_size + i - 1),]
-      newfactors<-matrix(fac.mod$twostep[w_size+i,], nrow=1)
-
-      AR_dfm<-Arima(Y[i:(w_size+i-1), ], order=c(1,0,0), xreg=factors)
-      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
-
-      y_real<-Y[w_size+i,]
-      e<-y_real-AR_dfm_predict
-
-      trues[i] <- y_real
-      predicts[i] <- AR_dfm_predict
-      errors[i] <- e
+      X.train<-X[i:(w_size+i-1),]
+      Y.train<-Y[i:(w_size+i-1),]
+      X.test<-X[(w_size + i),]
+      Y.test<-Y[(w_size + i),]
+      rf.mod<-randomForest(x=X.train, y=Y.train)
+      rf_predict<-predict(rf.mod, newdata=X.test)
+      predicts[i]<-rf_predict
+      trues[i]<-Y.test
     }
   }else{
-    suppressMessages(fac.mod<-dfm(X, r=factor.num, p=1, q=factor.num))
-    factors<-fac.mod$twostep[1:w_size,]
-    AR_dfm<-Arima(Y[1:w_size, ], order=c(1,0,0), xreg=factors)
+    X.train<-X[i:w_size,]
+    Y.train<-Y[i:w_size,]
     for(i in 1:n_windows){
-      newfactors<-matrix(fac.mod$twostep[w_size+i,], nrow=1)
-      AR_dfm_predict<-as.numeric(predict(AR_dfm, newxreg=newfactors, n.ahead=1)$pred)
-
-      y_real<-Y[w_size+i,]
-      e<-y_real-AR_dfm_predict
-
-      trues[i] <- y_real
-      predicts[i] <- AR_dfm_predict
-      errors[i] <- e
+      X.test<-X[(w_size + i),]
+      Y.test<-Y[(w_size + i),]
+      rf.mod<-randomForest(x=X.train, y=Y.train)
+      rf_predict<-predict(rf.mod, newdata=X.test)
+      predicts[i]<-rf_predict
+      trues[i]<-Y.test
     }
   }
-  mse<-mean(na.omit(errors)^2)
-
-  forecasts<-data.frame(predicts, trues)
-  colnames(forecasts) <-c('Forecasts','Realized')
-  forecasts$Errors<-errors
-  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-  success_ratio = sum(forecasts$Success)/nrow(forecasts)
-  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-  forecasts$True_Direction <- sign(forecasts$Realized)
-  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
-
-
-  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
-
+  results<-Metrics(pred=predicts, true=trues)
   return(results)
 }
-
-
-
 
 
 
@@ -1732,21 +1355,7 @@ maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive"){
     trues<-Data[(w_size+1):length(Data)]
     errors<-trues-predicts
   }
-  mse<-mean(na.omit(errors)^2)
-
-  forecasts<-data.frame(predicts, trues)
-  colnames(forecasts) <-c('Forecasts','Realized')
-  forecasts$Errors<-errors
-  forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
-  success_ratio = sum(forecasts$Success)/nrow(forecasts)
-  forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
-  forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
-  forecasts$True_Direction <- sign(forecasts$Realized)
-  forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
-
-
-  results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
-
+  results<-Metrics(pred=predicts, true=trues)
   return(results)
 }
 
@@ -1754,8 +1363,8 @@ maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive"){
 
 maeforecast<-function(data=NULL, model="ar", w_size=NULL, window="recursive", ...){
   if(model %in% c("ar", "lasso", "postlasso", "ridge",
-                  "alasso", "postlasso", "postnet",
-                  "dfm")==FALSE){
+                  "alasso", "postalasso", "postnet",
+                  "dfm", "dfm2", "rf")==FALSE){
     stop("Unsupported model type. Refer to help(maeforecast) for a list of supported models.")
   }
   FUN<-paste("maeforecast.", model, sep="")
