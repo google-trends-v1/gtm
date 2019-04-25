@@ -1,4 +1,4 @@
-clust.factor<-function(data=NULL, fac.num=NULL, method="two-step"){
+clust.factor<-function(data=NULL, fac.num=NULL, method="two-step", clustor.type="partitional"){
   if(is.null(data)){
     stop("Empty data.")
   }
@@ -7,7 +7,7 @@ clust.factor<-function(data=NULL, fac.num=NULL, method="two-step"){
   }
   suppressMessages(require(dtwclust))
   if(method=="aggregation"){
-    Partition<-dtwclust::tsclust(series=t(data), k=fac.num, type="partitional")
+    Partition<-dtwclust::tsclust(series=t(data), k=fac.num, type=clustor.type)
     clusters<-sort(unique(Partition@cluster))
     factors<-matrix(nrow=dim(data)[1], ncol=fac.num)
     for(i in clusters){
@@ -19,7 +19,7 @@ clust.factor<-function(data=NULL, fac.num=NULL, method="two-step"){
       stop("Package dynfactorR is not installed. To install, call library(devtools) and then call install_github('rbagd/dynfactoR').")
     }
     suppressMessages(require(dynfactoR))
-    Partition<-dtwclust::tsclust(series=t(data), k=fac.num, type="partitional")
+    Partition<-dtwclust::tsclust(series=t(data), k=fac.num, type=clustor.type)
     clusters<-sort(unique(Partition@cluster))
     factors<-matrix(nrow=dim(data)[1], ncol=fac.num)
     for(i in clusters){

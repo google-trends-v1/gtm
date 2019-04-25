@@ -8,7 +8,8 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-maeforecast.simplified(data, model="ar", w_size, window="recursive", ...)
+maeforecast.simplified(data, model="ar", w_size, window="recursive",
+            y.index=1, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,6 +17,7 @@ maeforecast.simplified(data, model="ar", w_size, window="recursive", ...)
   \item{model}{character, indicating which model should be used to make the forecasts. Default is an AR(1) model. Note that \code{maeforecast(model="ar")} is equivalent to \code{maeforecast.ar()} and so on. See Details for the full list of supported models.}
   \item{w_size}{numeric, indicating the index where the forecasting should begin. If the first point forecast should be made at the 73th observation, for example, \code{w_size} should be set to be 72.}
   \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.}
+  \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
   \item{\dots}{other arguments that may be used. Refer to \code{\link{maeforecast}} for a full list.}
 
 }

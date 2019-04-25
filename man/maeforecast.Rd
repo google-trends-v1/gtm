@@ -8,31 +8,42 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-maeforecast(data, model="ar", w_size, window="recursive", ...)
+maeforecast(data, model="ar", w_size, window="recursive", y.index=1. ...)
 
-maeforecast.ar(data, w_size, window="recursive")
-maeforecast.lasso(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.postlasso(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.ridge(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.alasso(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.postalasso(data, w_size, window="recursive", standardize=TRUE)
-maeforecast.postnet(data, w_size, window="recursive", pred, standardize=TRUE)
-maeforecast.rf(data, w_size, window="recursive", ntree=500, replace=TRUE)
-maeforecast.dfm(data, w_size, window="recursive", factor.num)
-maeforecast.dfm(data, w_size, window="recursive", factor.num, method="two-step")
+maeforecast.ar(data, w_size, window="recursive", y.index=1)
+maeforecast.lasso(data, w_size, window="recursive", y.index=1,
+            standardize=TRUE, lambda)
+maeforecast.postlasso(data, w_size, window="recursive", y.index=1,
+            standardize=TRUE, lambda)
+maeforecast.ridge(data, w_size, window="recursive", y.index=1,
+            standardize=TRUE, lambda)
+maeforecast.alasso(data, w_size, window="recursive", y.index=1,
+            standardize=TRUE, lambda.ridge, lambda.lasso)
+maeforecast.postalasso(data, w_size, window="recursive", y.index=1,
+            standardize=TRUE, lambda.ridge, lambda.lasso)
+maeforecast.postnet(data, w_size, window="recursive", pred, y.index=1,
+            standardize=TRUE)
+maeforecast.rf(data, w_size, window="recursive", ntree=500, y.index=1,
+            replace=TRUE)
+maeforecast.dfm(data, w_size, window="recursive", y.index=1,
+            factor.num)
+maeforecast.dfm(data, w_size, window="recursive", y.index=1,
+            factor.num, method="two-step")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{data}{a data frame or a matrix; the first column should contain the time series variable for which the forecasts are to be made. Other columns should contain the covariates.}
+  \item{data}{a data frame or a matrix containing the time series for which the forecasts are made as well as predictors.}
   \item{model}{character, indicating which model should be used to make the forecasts. Default is an AR(1) model. Note that \code{maeforecast(model="ar")} is equivalent to \code{maeforecast.ar()} and so on. See Details for the full list of supported models.}
   \item{w_size}{numeric, indicating the index where the forecasting should begin. If the first point forecast should be made at the 73th observation, for example, \code{w_size} should be set to be 72.}
   \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.}
+  \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
   \item{pred}{numeric, indicating the number of predicators being considered in the Adaptive Elastic Net model. Default is set to be equal to the number of observations.}
   \item{factor.num}{numeric, indicating the number of dynamic factors to be extracted from the covariates in the Dynamic Factor Model. Default is \code{3}.}
   \item{standardize}{logical, indicating whether the data matrix should be scaled before the model is fitting, for the use of variable selection/shrinkage models. Default is \code{TRUE}.}
   \item{ntree}{numeric, number of trees to grow. Default is \code{500}.}
   \item{replace}{logical, indicating whether sampling of cases should be done with replacement. Default is \code{TRUE}.}
   \item{method}{character, indicating which method should be used to extract dynamic factors. If \code{"aggregation"}, the covariate time series are first clustered based on partitional method, and a simple aggreagtion is applied to each cluster. If \code{"two-step"}, one factor is extracted within each cluster based on Doz, Giannone & Reichlin (2011).}
+  \item{lambda, lambda.ridge, lambda.lasso}{optional user-supplied lambda sequence; default is NULL, and the function \code{glmnet} chooses its own sequence.}
 
 }
 \details{
@@ -52,6 +63,10 @@ For shrinkage models, the penalty factor lambda is selected automatically by 10-
   \item{Forecasts }{data matrix, containing the point forecasts, realized values, forecast errors, signs of the forecasts and realized values, and success in predicting the signs.}
   \item{MSE }{numeric, mean squred error of the point forecasts.}
   \item{SRatio}{numeric, success ratio of the point forecasts. Success is claimed when the point forecasts and realized values have the same sign.}
+
+  The following extra component is returned by shrinkage models:
+
+  \item{Variables}{list, containing the predictors selected by the shrinkage model at every iteration.}
 
 %% ...
 }

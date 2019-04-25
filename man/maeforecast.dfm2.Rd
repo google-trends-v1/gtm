@@ -8,8 +8,8 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-maeforecast.dfm2(data, w_size, window = "recursive",
-                  factor.num = 3, method="two-step")
+maeforecast.dfm2(data, w_size, window = "recursive", y.index=1,
+            factor.num = 3, method="two-step", clustor.type="partitional")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,10 +22,12 @@ maeforecast.dfm2(data, w_size, window = "recursive",
   \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.
 %%     ~~Describe \code{window} here~~
 }
+  \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
   \item{factor.num}{numeric, indicating the number of dynamic factors to be extracted from the covariates in the Dynamic Factor Model. Default is \code{3}.
 %%     ~~Describe \code{factor.num} here~~
 }
   \item{method}{character, indicating which method should be used to extract dynamic factors. If \code{"aggregation"}, the covariate time series are first clustered based on partitional method, and a simple aggreagtion is applied to each cluster. If \code{"two-step"}, one factor is extracted within each cluster based on Doz, Giannone & Reichlin (2011).}
+  \item{clustyor.type}{the type of clustering method to be applied. Options include \code{"partitional"}, \code{"hierarchical"}, \code{"tadpole"}, and \code{"fuzzy"}. Default is \code{"partitional"}. }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

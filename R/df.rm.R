@@ -1,10 +1,10 @@
 df.rm<-function(df=NULL, index=NULL, rm="both", frequency=12){
   suppressMessages(require(stats))
   if(is.null(df)){
-    return("Dataframe cannot be omitted.")
+    stop("Dataframe cannot be omitted.")
   }
   if(rm %in% c("seasonal", "trend", "both")==F){
-    return("Component not removable.")
+    stop("Component not removable.")
   }
   if(is.null(index)){
     index<-1:dim(df)[2]

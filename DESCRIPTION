@@ -16,7 +16,9 @@ Imports:
     msaenet,
     boot,
     glmnet,
-    matrixStats
+    matrixStats,
+    ggplot2,
+    reshape2
 Suggests:
     devtools
 Author: Zehua Wu [aut, cre]

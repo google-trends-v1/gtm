@@ -4,16 +4,19 @@
 \title{Generate Model Comparison Table
 %%  ~~function to do ... ~~
 }
-\description{This model generates a comparison table that reports the MSE, Success Ratio and MSE Ratio for a group of models being compared.
+\description{This model generates a comparison table that reports the MSE, Success Ratio, MSE Ratio, and some test statistics for a group of models being compared.
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-ForCompare(..., benchmark=NULL)
+ForCompare(..., benchmark.index=NULL, test=c("unweighted", "binary"),
+          h=1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{...}{one or more output from functions \code{\link{maeforecast}}, \code{\link{Metrics}}, and \code{\link{Bagging}} to generate the comparison table for. If omitted, the \code{MSERatio} will not be computed.}
-  \item{benchmark}{either an output from the above listed functions, or a numeric indicating the MSE for the benchmark model, or an integer indicating which model listed in \code{\dots} should be treated as the benchmark.}
+  \item{...}{one or more output from functions \code{\link{maeforecast}}, \code{\link{Metrics}}, and \code{\link{Bagging}} to generate the comparison table for.}
+  \item{benchmark.index}{an integer indicating which model listed in \code{\dots} should be treated as the benchmark. If omitted, the \code{MSERatio} and \code{DMW} will not be computed.}
+  \item{test}{statistical test p values to be reported. Options include \code{"weighted"} (weighted directional forecast test) and \code{"binary"} (unweighted directional forecast test). See \code{\link{Directional_NW}} for details.}
+  \item{h}{a numeric indicating the forecast horizon used in the models.}
 %%     ~~Describe \code{x} here~~
 }
 \details{
@@ -21,11 +24,14 @@ ForCompare(..., benchmark=NULL)
 }
 \value{
 
-This function returns a data table containing three columns.
+This function returns a data frame with the following potential columns
 
 \item{MSE}{the mean squared error of point forecasts for each model being compared.}
 \item{SRatio}{the success ratio of the directional forecasts for each model being compared.}
 \item{MSERatio}{the ratio of each model's MSE against that of a benchmark.}
+\item{DMW}{the p values returned from DMW tests against a benchmark indicated by \code{benchmark.index}. The null hypothesis is that the model being compared has the same forecast accuracy as the benchmark; the alternative hupothesis is that the model being compared is better than the benchmark.}
+\item{Weighted}{p value from weighted directional forecast test.}
+\item{Unweighted}{p value from unweighted directional forecast test.}
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}

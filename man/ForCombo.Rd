@@ -13,7 +13,6 @@ ForCombo(..., type="mean")
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{...}{one or more output from functions \code{\link{maeforecast}}, \code{\link{Metrics}}, and \code{\link{Bagging}} for which the combined forecasts are calculated.
-%%     ~~Describe \code{x} here~~
 }
   \item{type}{a character indicating whether the mean or median should be used for the combination. Default is \code{"mean"}.}
 }

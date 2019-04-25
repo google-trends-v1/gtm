@@ -9,7 +9,7 @@
 }
 \usage{
 Bagging(data, boot, sim="fixed", l=12L, norm=TRUE, n.sim=NROW(data),
-        model="ar", w_size, window="recursive",  ...)
+        model="ar", w_size, window="recursive", y.index=1, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,6 +32,7 @@ Bagging(data, boot, sim="fixed", l=12L, norm=TRUE, n.sim=NROW(data),
 
   \item{w_size}{numeric, indicating the index where the forecasting should begin. If the first point forecast should be made at the 73th observation, for example, \code{w_size} should be set to be 72.}
   \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.}
+  \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
 
   \item{\dots}{extra arguments supported by the \code{\link{maeforecast}} function.
 %%     ~~Describe \code{\dots} here~~
