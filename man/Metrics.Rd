@@ -9,7 +9,7 @@ This function calculates mean squared error (MSE) and the success ratio of a giv
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-Metrics(pred=NULL, true=NULL)
+Metrics(pred=NULL, true=NULL, h=0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -17,6 +17,7 @@ Metrics(pred=NULL, true=NULL)
 %%     ~~Describe \code{x} here~~
 }
   \item{true}{vector of true values.}
+  \item{h}{forecasting horizon used in making the forecasts. Default is \code{0}. }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

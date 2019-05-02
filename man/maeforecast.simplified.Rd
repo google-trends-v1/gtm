@@ -9,7 +9,7 @@
 }
 \usage{
 maeforecast.simplified(data, model="ar", w_size, window="recursive",
-            y.index=1, ...)
+            y.index=1, h=0, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,11 +18,12 @@ maeforecast.simplified(data, model="ar", w_size, window="recursive",
   \item{w_size}{numeric, indicating the index where the forecasting should begin. If the first point forecast should be made at the 73th observation, for example, \code{w_size} should be set to be 72.}
   \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.}
   \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
+  \item{h}{forecasting horizon. Default is \code{0}. }
   \item{\dots}{other arguments that may be used. Refer to \code{\link{maeforecast}} for a full list.}
 
 }
 \details{
-Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"} & \code{"dfm2"} (Dynamic Factor Models).
+Supported models include \code{"ar"}, \code{"rw"} (Random Walk), \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"} & \code{"dfm2"} (Dynamic Factor Models).
 
 %%  ~~ If necessary, more details than the description above ~~
 }

@@ -8,7 +8,8 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-maeforecast.ar(data = NULL, w_size = NULL, window = "recursive", y.index=1)
+maeforecast.ar(data = NULL, w_size = NULL, window = "recursive",
+            y.index=1, h=0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,6 +21,7 @@ maeforecast.ar(data = NULL, w_size = NULL, window = "recursive", y.index=1)
 }
   \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.}
   \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
+  \item{h}{forecasting horizon. Default is \code{0}. }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

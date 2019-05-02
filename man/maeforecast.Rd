@@ -8,27 +8,30 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-maeforecast(data, model="ar", w_size, window="recursive", y.index=1. ...)
+maeforecast(data, model="ar", w_size, window="recursive", y.index=1, h=0, ...)
 
-maeforecast.ar(data, w_size, window="recursive", y.index=1)
+maeforecast.ar(data, w_size, window="recursive", y.index=1, h=0)
+maeforecast.rw(data, w_size, windoe="recursive", y.index=1, h=0)
 maeforecast.lasso(data, w_size, window="recursive", y.index=1,
-            standardize=TRUE, lambda)
+            standardize=TRUE, lambda, h=0, t.select)
 maeforecast.postlasso(data, w_size, window="recursive", y.index=1,
-            standardize=TRUE, lambda)
+            standardize=TRUE, lambda, h=0, t.select)
 maeforecast.ridge(data, w_size, window="recursive", y.index=1,
-            standardize=TRUE, lambda)
+            standardize=TRUE, lambda, h=0, t.select)
 maeforecast.alasso(data, w_size, window="recursive", y.index=1,
-            standardize=TRUE, lambda.ridge, lambda.lasso)
+            standardize=TRUE, lambda.ridge, lambda.lasso, h=0,
+            t.select)
 maeforecast.postalasso(data, w_size, window="recursive", y.index=1,
-            standardize=TRUE, lambda.ridge, lambda.lasso)
+            standardize=TRUE, lambda.ridge, lambda.lasso, h=0,
+            t.select)
 maeforecast.postnet(data, w_size, window="recursive", pred, y.index=1,
-            standardize=TRUE)
+            standardize=TRUE, h=0, t.select)
 maeforecast.rf(data, w_size, window="recursive", ntree=500, y.index=1,
-            replace=TRUE)
+            replace=TRUE, h=0, t.select)
 maeforecast.dfm(data, w_size, window="recursive", y.index=1,
-            factor.num)
+            factor.num, h=0, t.select)
 maeforecast.dfm(data, w_size, window="recursive", y.index=1,
-            factor.num, method="two-step")
+            factor.num, method="two-step", h=0, t.select)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -44,10 +47,11 @@ maeforecast.dfm(data, w_size, window="recursive", y.index=1,
   \item{replace}{logical, indicating whether sampling of cases should be done with replacement. Default is \code{TRUE}.}
   \item{method}{character, indicating which method should be used to extract dynamic factors. If \code{"aggregation"}, the covariate time series are first clustered based on partitional method, and a simple aggreagtion is applied to each cluster. If \code{"two-step"}, one factor is extracted within each cluster based on Doz, Giannone & Reichlin (2011).}
   \item{lambda, lambda.ridge, lambda.lasso}{optional user-supplied lambda sequence; default is NULL, and the function \code{glmnet} chooses its own sequence.}
-
+  \item{h}{forecasting horizon. Default is \code{0}. }
+  \item{t.select}{number of covariates to be included. If omitted, every covariate will be included. Otherwise, a regression between the dependant variable, its lag and each covariate will be run and a statistical test will be applied for the significance of the covariate's coefficient. The covariates will then be ranked based on their test statistics, and \code{t.select} number of them with the highest test statistics will be included in the machine learning algorithms. Note that the forecasting horizon \code{h} is considered. This selection process is only applied at the beggining of the algorithms; that is, the list of covariates will not be updated with the rolling or recursive windows.}
 }
 \details{
-Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"} & \code{"dfm2"} (Dynamic Factor Models).
+Supported models include \code{"ar"}, \code{"rw"} (Random Walk), \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"} & \code{"dfm2"} (Dynamic Factor Models).
 
 For shrinkage models, the penalty factor lambda is selected automatically by 10-fold cross-validation.
 %%  ~~ If necessary, more details than the description above ~~
@@ -63,6 +67,8 @@ For shrinkage models, the penalty factor lambda is selected automatically by 10-
   \item{Forecasts }{data matrix, containing the point forecasts, realized values, forecast errors, signs of the forecasts and realized values, and success in predicting the signs.}
   \item{MSE }{numeric, mean squred error of the point forecasts.}
   \item{SRatio}{numeric, success ratio of the point forecasts. Success is claimed when the point forecasts and realized values have the same sign.}
+  \item{Data}{the data as used in the model.}
+  \item{Model}{some specifics about the model used. }
 
   The following extra component is returned by shrinkage models:
 

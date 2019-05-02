@@ -15,7 +15,7 @@ plot(forecasts, start=NULL, frequency='month',
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{forecasts}{an object of class "Maeforecast". Can be returned by functions \code{\link{maeforecast}}, \code{\link{Bagging}}, and \code{\link{Metrics}}.}
+  \item{forecasts}{an object of class "Maeforecast". Can be returned by functions \code{\link{maeforecast}} and \code{\link{Bagging}}.}
   \item{start}{the starting time of the forecasts. Should have the format \code{"\%Y-\%m-\%d"}. If omitted, time will be shown as integers starting from 1.}
   \item{frequency}{if \code{start} is not omitted, \code{frequency} is used to contruct the time sequence, which indicates the frequency of the time series. Options include \code{"year"}, \code{"month"}, \code{"week"}, and \code{"day"}.}
   \item{forecast.lab}{character, label of the forecasts. Default is \code{"Forecasts"}.}

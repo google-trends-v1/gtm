@@ -26,7 +26,7 @@ Bagging(data, boot, sim="fixed", l=12L, norm=TRUE, n.sim=NROW(data),
   \item{endcorr}{A logical variable indicating whether end corrections are to be applied when sim is "fixed". When sim is "geom", endcorr is automatically set to TRUE; endcorr is not used when sim is "model" or "scramble".}
   \item{norm}{A logical argument indicating whether normal margins should be used for phase scrambling. If norm is FALSE then margins corresponding to the exact empirical margins are used.}
   \item{n.sim}{The length of the simulated time series. Defualt is the length of the original time series.}
-  \item{model}{character, indicating which model should be used to make the forecasts. Default is an AR(1) model. Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"}, \code{"dfm2"} (Dynamic Factor Models).
+  \item{model}{character, indicating which model should be used to make the forecasts. Default is an AR(1) model. Supported models include \code{"ar"}, \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"}, \code{"dfm2"} (Dynamic Factor Models). Note that a random walk model cannot be used in this function.
 %%     ~~Describe \code{FUN} here~~
 }
 

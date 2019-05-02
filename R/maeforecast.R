@@ -1,4 +1,4 @@
-maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda=NULL, y.index=1){
+maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda=NULL, y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -6,9 +6,22 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
     stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
-  Data = data
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
+
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -35,7 +48,7 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
       best_lasso_coef <- coef(lasso_cv, s=lasso_cv$lambda.1se)
       best_lasso_coef = as.numeric(best_lasso_coef) [-1]
       nonzero_index<-which(best_lasso_coef!=0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       lasso_predict<-predict(lasso.mod, s=lasso_cv$lambda.1se, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -60,7 +73,7 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
       best_lasso_coef <- coef(lasso_cv, s = lasso_cv$lambda.1se)
       best_lasso_coef = as.numeric(best_lasso_coef) [-1]
       nonzero_index<-which(best_lasso_coef!=0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       lasso_predict<-predict(lasso.mod, s=lasso_cv$lambda.1se, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -84,7 +97,7 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
     best_lasso_coef <- coef(lasso_cv, s = lasso_cv$lambda.1se)
     best_lasso_coef = as.numeric(best_lasso_coef) [-1]
     nonzero_index<-which(best_lasso_coef!=0)
-    covariates<-list(nonzero_index)
+    covariates<-list(varnames[nonzero_index])
 
     for(i in 1:n_windows){
       lasso_predict<-predict(lasso.mod, s=lasso_cv$lambda.1se, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
@@ -96,8 +109,11 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
       errors[i]<-e
     }
   }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Lasso", Window=window, Size=w_size, Horizon=h, Preselection=t.select)
   results$Variables<-covariates
+  class(results)<-"Maeforecast"
   return(results)
 }
 
@@ -112,7 +128,7 @@ maeforecast.lasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
 
 
 
-maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda=NULL, y.index=1){
+maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda=NULL, y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -120,9 +136,21 @@ maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", h=0,
     stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
-  Data = data
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -149,7 +177,7 @@ maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", h=0,
       best_lasso_coef <- coef(lasso_cv, s = lasso_cv$lambda.1se)
       best_lasso_coef = as.numeric(best_lasso_coef) [-1]
       nonzero_index<-which(best_lasso_coef!=0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       if (length(nonzero_index) !=0){
         nonzero_index <-as.vector(nonzero_index)
@@ -192,7 +220,7 @@ maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", h=0,
       best_lasso_coef <- coef(lasso_cv, s = lasso_cv$lambda.1se)
       best_lasso_coef = as.numeric(best_lasso_coef) [-1]
       nonzero_index<-which(best_lasso_coef!=0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       if (length(nonzero_index) !=0){
         nonzero_index <-as.vector(nonzero_index)
@@ -234,7 +262,7 @@ maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", h=0,
     best_lasso_coef <- coef(lasso_cv, s = lasso_cv$lambda.1se)
     best_lasso_coef = as.numeric(best_lasso_coef) [-1]
     nonzero_index<-which(best_lasso_coef!=0)
-    covariates<-list(nonzero_index)
+    covariates<-list(varnames[nonzero_index])
 
     if (length(nonzero_index) !=0){
       nonzero_index <-as.vector(nonzero_index)
@@ -260,8 +288,11 @@ maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", h=0,
       errors<-trues-predicts
     }
   }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Post Lasso", Window=window, Size=w_size, Horizon=h, Preselection=t.select)
   results$Variables<-covariates
+  class(results)<-"Maeforecast"
   return(results)
 }
 
@@ -273,7 +304,7 @@ maeforecast.postlasso<-function(data=NULL, w_size=NULL, window="recursive", h=0,
 
 
 
-maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda=NULL, y.index=1){
+maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda=NULL, y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -281,9 +312,21 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
     stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
-  Data = data
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -353,7 +396,10 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
       errors[i] <- e
     }
   }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Ridge", Window=window, Size=w_size, Horizon=h, Preselection=t.select)
+  class(results)<-"Maeforecast"
   return(results)
 }
 
@@ -365,7 +411,7 @@ maeforecast.ridge<-function(data=NULL, w_size=NULL, window="recursive", h=0, sta
 
 
 
-maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda.ridge=NULL, lambda.lasso=NULL, y.index=1){
+maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda.ridge=NULL, lambda.lasso=NULL, y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -373,9 +419,21 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, st
     stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
-  Data = data
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -412,7 +470,7 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, st
       best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.1se)
       best_alasso_coef = as.numeric(best_alasso_coef) [-1]
       nonzero_index<-which(best_alasso_coef!=0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       alasso_predict<-predict(alasso.mod, s=alasso_cv$lambda.1se, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -449,7 +507,7 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, st
       best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.1se)
       best_alasso_coef = as.numeric(best_alasso_coef) [-1]
       nonzero_index<-which(best_alasso_coef!=0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       alasso_predict<-predict(alasso.mod, s=alasso_cv$lambda.1se, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
       y_real<-Y[w_size+i,]
@@ -485,7 +543,7 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, st
       best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.1se)
       best_alasso_coef = as.numeric(best_alasso_coef) [-1]
       nonzero_index<-which(best_alasso_coef!=0)
-      covariates<-list(nonzero_index)
+      covariates<-list(varnames[nonzero_index])
 
       for(i in 1:n_windows){
         alasso_predict<-predict(alasso.mod, s=alasso_cv$lambda.1se, newx=matrix(X[(w_size+i),], ncol=ncol(X)))
@@ -497,8 +555,11 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, st
         errors[i]<- e
       }
     }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Adaptive Lasso", Window=window, Size=w_size, Horizon=h, Preselection=t.select)
   results$Variables<-covariates
+  class(results)<-"Maeforecast"
   return(results)
 
 }
@@ -524,7 +585,7 @@ maeforecast.alasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, st
 
 
 
-maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda.ridge=NULL, lambda.lasso=NULL, y.index=1){
+maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", h=0, standardize=TRUE, lambda.ridge=NULL, lambda.lasso=NULL, y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -532,9 +593,21 @@ maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", h=0
     stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
-  Data = data
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -657,7 +730,7 @@ maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", h=0
       best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.1se)
       best_alasso_coef = as.numeric(best_alasso_coef) [-1]
       nonzero_index<-which(best_alasso_coef!=0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       if (length(nonzero_index) !=0){
         nonzero_index <-as.vector(nonzero_index)
@@ -712,7 +785,7 @@ maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", h=0
       best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.1se)
       best_alasso_coef = as.numeric(best_alasso_coef) [-1]
       nonzero_index<-which(best_alasso_coef!=0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       if (length(nonzero_index) !=0){
         nonzero_index <-as.vector(nonzero_index)
@@ -766,7 +839,7 @@ maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", h=0
     best_alasso_coef <- coef(alasso_cv, s = alasso_cv$lambda.1se)
     best_alasso_coef = as.numeric(best_alasso_coef) [-1]
     nonzero_index<-which(best_alasso_coef!=0)
-    covariates<-list(nonzero_index)
+    covariates<-list(varnames[nonzero_index])
 
     if (length(nonzero_index) !=0){
       nonzero_index <-as.vector(nonzero_index)
@@ -792,8 +865,11 @@ maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", h=0
       errors<-trues-predicts
     }
   }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Post Adaptive Lasso", Window=window, Size=w_size, Horizon=h, Preselection=t.select)
   results$Variables<-covariates
+  class(results)<-"Maeforecast"
   return(results)
 }
 
@@ -812,23 +888,37 @@ maeforecast.postalasso<-function(data=NULL, w_size=NULL, window="recursive", h=0
 
 
 
-maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", h=0, pred=NULL, standardize=TRUE, alphas=c(0.2, 0.8, 0.02), y.index=1){
+maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", h=0, pred=NULL, standardize=TRUE, alphas=c(0.2, 0.8, 0.02), y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
   if(window %in% c("recursive", "rolling", "fixed")==F){
     stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
+
+
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
+  X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
+  Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
+
   if(is.null(pred)){
-    pred=w_size
+    pred=dim(X)[2]
   }else{
     pred=pred
   }
 
-
-  Data = data
-  X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
-  Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -956,7 +1046,7 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", h=0, p
                          alphas=alphas, seed = 10)
 
       nonzero_index = which(!coef(aenet.fit) == 0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       if (length(nonzero_index) !=0){
         nonzero_index <-as.vector(nonzero_index)
@@ -996,7 +1086,7 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", h=0, p
                          alphas=alphas, seed = 10)
 
       nonzero_index = which(!coef(aenet.fit) == 0)
-      covariates[i]<-list(nonzero_index)
+      covariates[i]<-list(varnames[nonzero_index])
 
       if (length(nonzero_index) !=0){
         nonzero_index <-as.vector(nonzero_index)
@@ -1034,7 +1124,7 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", h=0, p
                        alphas=alphas, seed = 10)
 
     nonzero_index = which(!coef(aenet.fit) == 0)
-    covariates<-list(nonzero_index)
+    covariates<-list(varnames[nonzero_index])
 
 
     if (length(nonzero_index) !=0){
@@ -1061,8 +1151,11 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", h=0, p
       errors<-trues-predicts
     }
   }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Post Adaptive ElasticNet", Window=window, Size=w_size, Horizon=h, Preselection=t.select)
   results$Variables<-covariates
+  class(results)<-"Maeforecast"
   return(results)
 }
 
@@ -1073,7 +1166,7 @@ maeforecast.postnet<-function(data=NULL, w_size=NULL, window="recursive", h=0, p
 
 
 
-maeforecast.dfm2<-function(data=NULL, w_size=NULL, h=0, window="recursive", factor.num=3, method="two-step", clustor.type="partitional", y.index=1){
+maeforecast.dfm2<-function(data=NULL, w_size=NULL, h=0, window="recursive", factor.num=3, method="two-step", clustor.type="partitional", y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -1081,9 +1174,21 @@ maeforecast.dfm2<-function(data=NULL, w_size=NULL, h=0, window="recursive", fact
     stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
-  Data = data
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -1141,7 +1246,10 @@ maeforecast.dfm2<-function(data=NULL, w_size=NULL, h=0, window="recursive", fact
       errors[i] <- e
     }
   }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Dynamic Factor Model", Window=window, Size=w_size, Horizon=h, Preselection=t.select, Method=method, Clustor=clustor.type)
+  class(results)<-"Maeforecast"
   return(results)
 }
 
@@ -1161,7 +1269,7 @@ maeforecast.dfm2<-function(data=NULL, w_size=NULL, h=0, window="recursive", fact
 
 
 
-maeforecast.dfm<-function(data=NULL, w_size=NULL, h=0, window="recursive", factor.num=3, y.index=1){
+maeforecast.dfm<-function(data=NULL, w_size=NULL, h=0, window="recursive", factor.num=3, y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -1172,9 +1280,21 @@ maeforecast.dfm<-function(data=NULL, w_size=NULL, h=0, window="recursive", facto
     stop("Package dynfactorR is not installed. To install, call library(devtools) and then call install_github('rbagd/dynfactoR').")
   }
 
-  Data = data
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -1233,7 +1353,10 @@ maeforecast.dfm<-function(data=NULL, w_size=NULL, h=0, window="recursive", facto
       errors[i] <- e
     }
   }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Dynamic Factor Model", Window=window, Size=w_size, Horizon=h, Preselection=t.select, Method="two-step", Clustor="None")
+  class(results)<-"Maeforecast"
   return(results)
 }
 
@@ -1245,7 +1368,7 @@ maeforecast.dfm<-function(data=NULL, w_size=NULL, h=0, window="recursive", facto
 
 
 
-maeforecast.rf<-function(data=NULL, w_size=NULL, h=0, window="recursive", ntree=500, replace=TRUE, y.index=1){
+maeforecast.rf<-function(data=NULL, w_size=NULL, h=0, window="recursive", ntree=500, replace=TRUE, y.index=1, t.select=NULL){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -1253,9 +1376,21 @@ maeforecast.rf<-function(data=NULL, w_size=NULL, h=0, window="recursive", ntree=
     stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
   }
 
-  Data = data
+  Data = as.matrix(data)
+  if(!is.null(colnames(data))){
+    varnames<-colnames(data)[-y.index]
+  }else{
+    varnames<-seq(from=1, to=dim(data)[2], by=1)[-y.index]
+  }
+
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+  if(class(t.select)=="numeric"){
+    ranks<-t.rank(Data, y.index=y.index, h=h)
+    X.index<-ranks[1:t.select,1]
+    X<-X[,X.index]
+    varnames<-varnames[X.index]
+  }
   w_size = w_size
   n_windows = dim(Y)[1] - w_size
   predicts<-c()
@@ -1297,7 +1432,10 @@ maeforecast.rf<-function(data=NULL, w_size=NULL, h=0, window="recursive", ntree=
       trues[i]<-Y.test
     }
   }
-  results<-Metrics(pred=predicts, true=trues)
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Y, X=X)
+  results$Model<-list(Model="Random Forest", Window=window, Size=w_size, Horizon=h, Preselection=t.select, Trees=ntree)
+  class(results)<-"Maeforecast"
   return(results)
 }
 
@@ -1308,7 +1446,7 @@ maeforecast.rf<-function(data=NULL, w_size=NULL, h=0, window="recursive", ntree=
 
 
 
-maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive", y.index=1){
+maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive", y.index=1, h=0){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
   }
@@ -1317,11 +1455,6 @@ maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive", y.index=1){
   }
 
   Data = ts(data[,y.index], frequency=12)
-  w_size = w_size
-  n_windows = length(Data) - w_size
-  predicts<-c()
-  trues<-c()
-  errors<-c()
 
   farima<-function(model=NULL, test=NULL){
     suppressMessages(require(stats))
@@ -1408,52 +1541,177 @@ maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive", y.index=1){
     }
   }
 
-  if(window=="recursive"){
-    for(i in 1:n_windows){
-      AR_model <- arima(Data[1:(w_size + i - 1)], order=c(1,0,0))
-      AR_predict <- predict(AR_model, 1)
-      y_real =Data[w_size + i]
 
-      predicts[i] <- AR_predict$pred
-      trues[i] <- y_real
-      e<-y_real-AR_predict$pred
-      errors[i] <- e
-    }
-  }else if(window=="rolling"){
-    for(i in 1:n_windows){
-      AR_model <- arima(Data[i:(w_size + i - 1)], order=c(1,0,0))
-      AR_predict <- predict(AR_model, 1)
-      y_real =Data[w_size + i]
+  if(h==0){
+    w_size = w_size
+    n_windows = length(Data) - w_size
+    predicts<-c()
+    trues<-c()
+    errors<-c()
 
-      predicts[i] <- AR_predict$pred
-      trues[i] <- y_real
-      e<-y_real-AR_predict$pred
-      errors[i] <- e
+    if(window=="recursive"){
+      for(i in 1:n_windows){
+        AR_model <- arima(Data[1:(w_size + i - 1)], order=c(1,0,0))
+        AR_predict <- predict(AR_model, 1)
+        y_real =Data[w_size + i]
+
+        predicts[i] <- AR_predict$pred
+        trues[i] <- y_real
+        e<-y_real-AR_predict$pred
+        errors[i] <- e
+      }
+    }else if(window=="rolling"){
+      for(i in 1:n_windows){
+        AR_model <- arima(Data[i:(w_size + i - 1)], order=c(1,0,0))
+        AR_predict <- predict(AR_model, 1)
+        y_real =Data[w_size + i]
+
+        predicts[i] <- AR_predict$pred
+        trues[i] <- y_real
+        e<-y_real-AR_predict$pred
+        errors[i] <- e
+      }
+    }else{
+      AR_model <- Arima(Data[1:w_size], order=c(1,0,0))
+      predicts<-as.numeric(farima(model=AR_model, test=Data[(w_size+1):length(Data)])$forecasts)
+      trues<-Data[(w_size+1):length(Data)]
+      errors<-trues-predicts
     }
+    results<-Metrics(pred=predicts, true=trues)
+    results$Data<-list(Y=as.numeric(Data))
+    results$Model<-list(Model="AR", Window=window, Size=w_size, Horizon=h)
+    class(results)<-"Maeforecast"
+    return(results)
   }else{
-    AR_model <- Arima(Data[1:w_size], order=c(1,0,0))
-    predicts<-as.numeric(farima(model=AR_model, test=Data[(w_size+1):length(Data)])$forecasts)
-    trues<-Data[(w_size+1):length(Data)]
-    errors<-trues-predicts
+    Y<-as.numeric(Data[(1+h):length(Data)])
+    X<-as.numeric(1:(length(Data)-h))
+    w_size = w_size
+    n_windows = length(Y) - w_size
+    predicts<-c()
+    trues<-c()
+    errors<-c()
+
+    if(window=="recursive"){
+      for(i in 1:n_windows){
+        AR_model<-lm(Y[1:(w_size+i-1)]~X[1:(w_size+i-1)])
+        AR_predict<-X[(w_size+i)]*as.numeric(coef(AR_model))[2]+as.numeric(coef(AR_model))[1]
+        y_real<-Y[(w_size+i)]
+
+        predicts[i] <- AR_predict
+        trues[i] <- y_real
+        e<-y_real-AR_predict
+        errors[i] <- e
+      }
+    }else if(window=="rolling"){
+      for(i in 1:n_windows){
+        AR_model<-lm(Y[i:(w_size+i-1)]~X[i:(w_size+i-1)])
+        AR_predict<-X[(w_size+i)]*as.numeric(coef(AR_model))[2]+as.numeric(coef(AR_model))[1]
+        y_real<-Y[(w_size+i)]
+
+        predicts[i] <- AR_predict
+        trues[i] <- y_real
+        e<-y_real-AR_predict
+        errors[i] <- e
+      }
+    }else{
+      AR_model<-lm(Y[1:w_size]~X[1:w_size])
+      for(i in 1:n_windows){
+        AR_predict<-X[(w_size+i)]*as.numeric(coef(AR_model))[2]+as.numeric(coef(AR_model))[1]
+        y_real<-Y[(w_size+i)]
+
+        predicts[i] <- AR_predict
+        trues[i] <- y_real
+        e<-y_real-AR_predict
+        errors[i] <- e
+      }
+    }
+    results<-Metrics(pred=predicts, true=trues, h=h)
+    results$Data<-list(Y=as.numeric(Data))
+    results$Model<-list(Model="AR", Window=window, Size=w_size, Horizon=h)
+    class(results)<-"Maeforecast"
+    return(results)
   }
-  results<-Metrics(pred=predicts, true=trues)
+}
+
+
+
+
+maeforecast.rw<-function(data=NULL, w_size=NULL, window="recursive", y.index=1, h=0){
+  if(is.null(data)|is.null(w_size)){
+    stop("Have to provide values for data and w_size.")
+  }
+  if(window %in% c("recursive", "rolling", "fixed")==F){
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+  }
+
+  RW<-function(pred=NULL, true=NULL, h=0){
+    if(is.null(pred)|is.null(true)){
+      stop("Arguments 'pred' and 'true' cannot be ommitted.")
+    }
+    forecasts<-data.frame(Forecasts=pred, Realized=true)
+    forecasts$Errors<-forecasts$Realized-forecasts$Forecasts
+    mse<-mean(na.omit(forecasts$Errors)^2)
+    if(h==0|h==1){
+      forecasts$Success <- ifelse(sign(forecasts$Forecasts) == sign(forecasts$Realized), 1, 0)
+      success_ratio = sum(forecasts$Success)/nrow(forecasts)
+      forecasts$Forecasted_Direction <- sign(forecasts$Forecasts)
+      forecasts$Forecasted_Direction <- ifelse(sign(forecasts$Forecasted_Direction) == 1, 1, 0)
+      forecasts$True_Direction <- sign(forecasts$Realized)
+      forecasts$True_Direction <- ifelse(sign(forecasts$True_Direction) == 1, 1, 0)
+    }else{
+      foredir<-vector()
+      truedir<-vector()
+      foredir[1:(h-1)]<-NA
+      truedir[1:(h-1)]<-NA
+      for(i in h:length(forecasts$Forecasts)){
+        foredir[i]<-forecasts$Forecasts[(i+1-h)]
+        truedir[i]<-forecasts$Realized[(i+1-h)]
+      }
+      forecasts$Success<-ifelse(sign(foredir)==sign(truedir), 1, 0)
+      success_ratio = sum(na.omit(forecasts$Success))/nrow(na.omit(forecasts))
+      forecasts$Forecasted_Direction <- ifelse(sign(foredir) == 1, 1, 0)
+      forecasts$True_Direction <- ifelse(sign(truedir) == 1, 1, 0)
+    }
+    results<-list(Forecasts=forecasts, MSE=mse, SRatio=success_ratio)
+    return(results)
+  }
+
+  Data = as.numeric(data[,y.index])
+  predicts<-Data[w_size:(length(Data)-h-1)]
+  trues<-Data[(w_size+1+h):length(Data)]
+  results<-RW(pred=predicts, true=trues, h=h)
+  results$Data<-list(Y=Data)
+  results$Model<-list(Model="Random Walk", Window=window, Size=w_size, Horizon=h)
+  class(results)<-"Maeforecast"
   return(results)
 }
 
 
 
-maeforecast<-function(data=NULL, model="ar", w_size=NULL, window="recursive", y.index=1, ...){
+maeforecast<-function(data=NULL, model="ar", w_size=NULL, window="recursive", y.index=1, h=0, ...){
   if(model %in% c("ar", "lasso", "postlasso", "ridge",
                   "alasso", "postalasso", "postnet",
-                  "dfm", "dfm2", "rf")==FALSE){
+                  "dfm", "dfm2", "rf", "rw")==FALSE){
     stop("Unsupported model type. Refer to help(maeforecast) for a list of supported models.")
   }
   FUN<-paste("maeforecast.", model, sep="")
   FUN<-match.fun(FUN)
-  results<-FUN(data=data, w_size=w_size, window=window, y.index=y.index, ...)
+  results<-FUN(data=data, w_size=w_size, window=window, y.index=y.index, h=h, ...)
   return(results)
 }
 
+
+summary.Maeforecast <- function(x, digits=7){
+  stopifnot(inherits(x, "Maeforecast"))
+  cat("\t\n",
+      sprintf("Model: %s\n", x$Model$Model),
+      sprintf("Forecasting Window: %s\n", x$Model$Window),
+      sprintf("Window Size: %s\n", x$Model$Size),
+      sprintf("Forecasting Horizon: %s\n", x$Model$Horizon),
+      sprintf("Preselection Number: %s\n", ifelse(is.null(x$Model$Preselection), "N/A", x$Model$Preselection)),
+      sprintf("MSE: %s\n", base::round(x$MSE, digits=digits)),
+      sprintf("Sucess Ratio: %s", base::round(x$SRatio, digits=digits)))
+}
 
 
 

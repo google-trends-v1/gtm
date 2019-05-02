@@ -9,7 +9,7 @@
 }
 \usage{
 maeforecast.rf(data, w_size, window="recursive", y.index=1,
-            ntree=500, replace=TRUE)
+            t.select, h=0, ntree=500, replace=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -17,6 +17,8 @@ maeforecast.rf(data, w_size, window="recursive", y.index=1,
   \item{w_size}{numeric, indicating the index where the forecasting should begin. If the first point forecast should be made at the 73th observation, for example, w_size should be set to be 72.}
   \item{window}{character, indicating the forecasting scheme to be applied. Options include "recursive", "rolling", and "fixed".}
   \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
+  \item{t.select}{number of covariates to be included. If omitted, every covariate will be included. Otherwise, a regression between the dependant variable, its lag and each covariate will be run and a statistical test will be applied for the significance of the covariate's coefficient. The covariates will then be ranked based on their test statistics, and \code{t.select} number of them with the highest test statistics will be included in the machine learning algorithms. Note that the forecasting horizon \code{h} is considered. This selection process is only applied at the beggining of the algorithms; that is, the list of covariates will not be updated with the rolling or recursive windows.}
+  \item{h}{forecasting horizon. Default is \code{0}. }
   \item{ntree}{numeric, number of trees to grow. Default is \code{500}.}
   \item{replace}{logical, indicating whether sampling of cases should be done with replacement. Default is \code{TRUE}.}
 
