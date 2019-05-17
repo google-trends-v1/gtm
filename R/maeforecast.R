@@ -2197,6 +2197,11 @@ maeforecast.arimax<-function(data=NULL, w_size=NULL, window="recursive", y.index
   X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
   Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
 
+  w_size = w_size
+  n_windows = dim(Y)[1] - w_size
+  predicts<-c()
+  trues<-c()
+
   if(window=="recursive"){
     for(i in 1:n_windows){
         xregs <- X[1:(w_size + i - 1), ]
