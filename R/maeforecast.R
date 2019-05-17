@@ -2248,6 +2248,12 @@ maeforecast.arimax<-function(data=NULL, w_size=NULL, window="recursive", y.index
         errors[i] <- e
       }
   }
+
+  results<-Metrics(pred=predicts, true=trues, h=h)
+  results$Data<-Data
+  results$Model<-list(Model="AR", Window=window, Size=w_size, Horizon=h, Index=y.index)
+  class(results)<-"Maeforecast"
+  return(results)
 }
 
 
