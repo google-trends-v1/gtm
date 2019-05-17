@@ -2180,6 +2180,73 @@ maeforecast.ar<-function(data=NULL, w_size=NULL, window="recursive", y.index=1, 
 
 
 
+
+
+
+
+maeforecast.arimax<-function(data=NULL, w_size=NULL, window="recursive", y.index=1, h=0){
+  if(is.null(data)|is.null(w_size)){
+    stop("Have to provide values for data and w_size.")
+  }
+  if(window %in% c("recursive", "rolling", "fixed")==F){
+    stop("Unsupported forecasting sheme. Has to be either 'recursive', 'rolling' or 'fixed'.")
+  }
+
+  Data = as.matrix(data)
+
+  X = matrix(Data[1:(dim(Data)[1]-h),-y.index],nrow = (dim(Data)[1]-h))
+  Y = matrix(Data[(1+h):dim(Data)[1],y.index],nrow = (dim(Data)[1]-h))
+
+  if(window=="recursive"){
+    for(i in 1:n_windows){
+        xregs <- X[1:(w_size + i - 1), ]
+        newxregs <-matrix(X[(w_size + i), ], ncol=ncol(X), nrow=1)
+
+        Data_uni = ts(Y, frequency=12)
+        AR_lasso <-Arima(Data_uni[1:(w_size + i - 1)], order=c(1,0,0), xreg =xregs)
+        AR_lasso_predict <- predict(AR_lasso, newxreg = newxregs, n.ahead =1)$pred
+        y_real =Data_uni[w_size + i]
+
+        predicts[i] <- AR_lasso_predict
+        trues[i] <- y_real
+        e <- y_real - AR_lasso_predict
+        errors[i] <- e
+    }
+  }else if(window=="rolling"){
+    for(i in 1:n_windows){
+        xregs <- X[i:(w_size + i - 1), ]
+        newxregs <-matrix(X[(w_size + i), ], ncol=ncol(X), nrow=1)
+
+        Data_uni = ts(Y, frequency=12)
+        AR_lasso <-Arima(Data_uni[i:(w_size + i - 1)], order=c(1,0,0), xreg =xregs)
+        AR_lasso_predict <- predict(AR_lasso, newxreg = newxregs, n.ahead =1)$pred
+        y_real =Data_uni[w_size + i]
+
+        predicts[i] <- AR_lasso_predict
+        trues[i] <- y_real
+        e <- y_real - AR_lasso_predict
+        errors[i] <- e
+    }
+  }else{
+      Data_uni = ts(Y, frequency=12)
+      xregs <- X[1:w_size, ]
+      AR_lasso <-Arima(Data_uni[1:w_size], order=c(1,0,0), xreg =xregs)
+      for(i in 1:n_windows){
+        newxregs <-matrix(X[(w_size + i), ], ncol=lncol(X), nrow=1)
+
+        AR_lasso_predict <- predict(AR_lasso, newxreg = newxregs, n.ahead =1)$pred
+        y_real =Data_uni[w_size + i]
+
+        predicts[i] <- AR_lasso_predict
+        trues[i] <- y_real
+        e <- y_real - AR_lasso_predict
+        errors[i] <- e
+      }
+  }
+}
+
+
+
 maeforecast.rw<-function(data=NULL, w_size=NULL, window="recursive", y.index=1, h=0){
   if(is.null(data)|is.null(w_size)){
     stop("Have to provide values for data and w_size.")
