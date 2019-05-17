@@ -4,7 +4,7 @@
 \title{Economic Forecasting with High-Dimensional Data
 %%  ~~function to do ... ~~
 }
-\description{This function is almost identical to the \code{\link{maeforecast}} function excpet that it only returns the out-of-sample point forecasts.
+\description{This function is almost identical to the \code{\link{maeforecast}} function excpet that it only returns the out-of-sample point forecasts. It is designed primarily for the use of the \code{\link{Bagging}} and \code{\link{bt.interval}} functions.
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
@@ -36,7 +36,7 @@ Supported models include \code{"ar"}, \code{"rw"} (Random Walk), \code{"lasso"},
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
+\author{Zehua Wu
 %%  ~~who you are~~
 }
 \note{

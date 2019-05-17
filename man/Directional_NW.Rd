@@ -12,7 +12,7 @@ Directional_DW(forecasts, p=1, weighted=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{forecasts}{an object of class "Maeforecast". Can be returned by functions \code{\link{maeforecast}}, \code{\link{Bagging}}, and \code{\link{Metrics}}.}
+  \item{forecasts}{an object of class "Maeforecast" or "MaeBagging". Can be returned by functions \code{\link{maeforecast}}, \code{\link{Bagging}}, and \code{\link{Metrics}}.}
   \item{p}{the largest lag used in the forecasting model. Default is \code{1}.}
   \item{weighted}{logical. If \code{TRUE}, weighted directional forecast test will be applied; otherwise the test will be applied upon unweighted directional forecasts. Default is \code{TRUE}.}
 }
@@ -33,7 +33,7 @@ Kim, Young Ju, Zhipeng Liao, and Aaron Tornell. 2014. “Speculators Positions a
 Forecasts: Beating Random Walk Models.” Unpublished Manuscript UCLA.
 %% ~put references to the literature/web site here ~
 }
-\author{
+\author{Zehua Wu
 %%  ~~who you are~~
 }
 \note{

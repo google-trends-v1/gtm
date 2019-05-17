@@ -13,6 +13,7 @@ RecursiveMSE<-function(forecast.main=NULL, forecast.benchmark=NULL){
   }
   results<-data.frame(MSE.main=MSE.main, MSE.benchmark=MSE.benchmark)
   results$MSE.diff<-MSE.main-MSE.benchmark
+  results$MSE.ratio<-MSE.main/MSE.benchmark
   class(results)<-"RecMSE"
   return(results)
 }

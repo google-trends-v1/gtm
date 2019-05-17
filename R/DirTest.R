@@ -1,6 +1,6 @@
 Directional_NW<-function(forecasts=NULL, h=0, p=1, weighted=TRUE){
-  if(class(forecasts)!="Maeforecast"){
-    stop("Argument forecasts has to be of class 'Maeforecast'.")
+  if(!class(forecasts)%in%c("Maeforecast", "MaeBagging")){
+    stop("Argument forecasts has to be of class 'Maeforecast' or 'MaeBagging'.")
   }
   nw <- function(y,qn){
     T <- length(y)

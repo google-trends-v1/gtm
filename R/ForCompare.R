@@ -1,8 +1,29 @@
 ForCompare<-function(..., benchmark.index=NULL, test=c("weighted", "binary"), h=0){
+  cw <- function(e.m1,e.m2,yf.m1,yf.m2){
+    nw <- function(y,qn){
+      T <- length(y)
+      ybar <- rep(1,T) * ((sum(y))/T)
+      dy <- y-ybar
+      G0 <- t(dy) %*% dy/T
+      for (j in 1:qn){
+        gamma <- t(dy[(j+1):T]) %*% dy[1:T-j]/(T-1)
+        G0 <- G0+(gamma+t(gamma))*(1-abs(j/qn))
+      }
+      return(as.numeric(G0))
+    }
+    P <- length(e.m1)
+    froll.adj <- e.m1^2-(e.m2^2-(yf.m1-yf.m2)^2)
+    varfroll.adj <- nw(froll.adj,1)
+    CW <- sqrt(P)*(mean(froll.adj))/sqrt(varfroll.adj)
+    pv <- 1-pnorm(CW,0,1)
+    results=list(test=CW,pvalue=pv)
+    return(results)
+  }
+
   model.list<-list(...)
   for(i in 1:length(model.list)){
-    if(class(model.list[[i]])!="Maeforecast"){
-      stop(paste("Object number ", i, " is not of class 'Maeforecast'."))
+    if(!class(model.list[[i]])%in%c("Maeforecast", "MaeBagging")){
+      stop(paste("Object number ", i, " is not of class 'Maeforecast' or 'MaeBagging'."))
     }
   }
   MSE<-vector()
@@ -13,8 +34,10 @@ ForCompare<-function(..., benchmark.index=NULL, test=c("weighted", "binary"), h=
   }
   if(class(benchmark.index)=="integer"){
     DMW<-vector()
+    CW<-vector()
     MSERatio<-vector()
     e1=as.numeric(model.list[[benchmark.index]]$Forecasts$Errors)
+    yf1=as.numeric(model.list[[benchmark.index]]$Forecasts$Forecasts)
     MSEbench<-model.list[[benchmark.index]]$MSE
     for(i in 1:length(model.list)){
       MSE[i]<-model.list[[i]]$MSE
@@ -22,11 +45,16 @@ ForCompare<-function(..., benchmark.index=NULL, test=c("weighted", "binary"), h=
       MSERatio[i]<-MSE[i]/MSEbench
       if(i==as.numeric(benchmark.index)){
         DMW[i]<-NA
+        CW[i]<-NA
       }else{
         DMW[i]<-forecast::dm.test(e1=e1, e2=model.list[[i]]$Forecasts$Errors, "greater", h=1)$p.value
+        CW[i]<-cw(e.m1=e1,
+                  e.m2=model.list[[i]]$Forecasts$Errors,
+                  yf.m1=yf1,
+                  yf.m2=model.list[[i]]$Forecasts$Forecasts)$pvalue
       }
     }
-    table<-data.frame(Model=names, MSE=MSE, SRatio=SRatio, MSERatio=MSERatio, DMW=DMW)
+    table<-data.frame(Model=names, MSE=MSE, SRatio=SRatio, MSERatio=MSERatio, DMW=DMW, CW=CW)
   }else if(is.null(benchmark.index)){
     for(i in 1:length(model.list)){
       MSE[i]<-model.list[[i]]$MSE

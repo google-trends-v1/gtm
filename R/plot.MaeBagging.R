@@ -1,5 +1,5 @@
-plot.Maeforecast<-function(forecasts=NULL, start=NULL, frequency='month', forecast.lab="Forecasts", true.lab="Realized", x.lab="Time", y.lab="Value", title=NULL){
-  if(class(forecasts)!="Maeforecast"){
+plot.MaeBagging<-function(forecasts=NULL, start=NULL, frequency='month', forecast.lab="Forecasts", true.lab="Realized", x.lab="Time", y.lab="Value", title=NULL){
+  if(class(forecasts)!="MaeBagging"){
     stop("Argument forecasts has to be of class 'Maeforecast'.")
   }
   if(is.null(start)){

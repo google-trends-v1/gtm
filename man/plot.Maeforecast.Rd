@@ -11,7 +11,7 @@
 ## S3 method for class 'Maeforecast'
 plot(forecasts, start=NULL, frequency='month',
     forecast.lab="Forecasts", true.lab="Realized",
-    x.lab="Time", y.lab="Value")
+    x.lab="Time", y.lab="Value", title=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,6 +22,7 @@ plot(forecasts, start=NULL, frequency='month',
   \item{true.lab}{character, label of the realized values. Default is \code{"Realized"}.}
   \item{x.lab}{character, label of the x-axis. Default is \code{"Time"}.}
   \item{y.labe}{character, label of the y-axis. Default is \code{"Value"}.}
+  \item{title}{character, title of the plot.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

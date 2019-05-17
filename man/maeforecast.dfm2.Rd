@@ -8,9 +8,9 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-maeforecast.dfm2(data, w_size, window = "recursive", y.index=1,
-            t.select, h=0, factor.num = 3, method="two-step",
-            clustor.type="partitional")
+maeforecast.dfm2(data, w_size, window="recursive", y.index=1,
+            factor.num=3, method="two-step", clustor.type="partitional",
+            h=0, t.select, t.update=F)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -24,7 +24,8 @@ maeforecast.dfm2(data, w_size, window = "recursive", y.index=1,
 %%     ~~Describe \code{window} here~~
 }
   \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
-  \item{t.select}{number of covariates to be included. If omitted, every covariate will be included. Otherwise, a regression between the dependant variable, its lag and each covariate will be run and a statistical test will be applied for the significance of the covariate's coefficient. The covariates will then be ranked based on their test statistics, and \code{t.select} number of them with the highest test statistics will be included in the machine learning algorithms. Note that the forecasting horizon \code{h} is considered. This selection process is only applied at the beggining of the algorithms; that is, the list of covariates will not be updated with the rolling or recursive windows.}
+  \item{t.select}{number of covariates to be included. If omitted, every covariate will be included. Otherwise, a regression between the dependant variable, its lag and each covariate will be run and a statistical test will be applied for the significance of the covariate's coefficient. The covariates will then be ranked based on their test statistics, and \code{t.select} number of them with the highest test statistics will be included in the machine learning algorithms. Note that the forecasting horizon \code{h} is considered.}
+  \item{t.update}{logical, indicating wheter the preselection process should be repeated in evert iteration, if \code{t.select} is specified. Under the defualt \code{FALSE}, the preselection process will be implemented only with for the first window.}
   \item{h}{forecasting horizon. Default is \code{0}. }
   \item{factor.num}{numeric, indicating the number of dynamic factors to be extracted from the covariates in the Dynamic Factor Model. Default is \code{3}.
 %%     ~~Describe \code{factor.num} here~~
@@ -39,6 +40,8 @@ maeforecast.dfm2(data, w_size, window = "recursive", y.index=1,
   \item{Forecasts }{data matrix, containing the point forecasts, realized values, forecast errors, signs of the forecasts and realized values, and success in predicting the signs.}
   \item{MSE }{numeric, mean squred error of the point forecasts.}
   \item{SRatio}{numeric, success ratio of the point forecasts. Success is claimed when the point forecasts and realized values have the same sign.}
+  \item{Data}{the data as used in the model.}
+  \item{Model}{some specifics about the model used. }
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -48,7 +51,7 @@ maeforecast.dfm2(data, w_size, window = "recursive", y.index=1,
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
+\author{Zehua Wu
 %%  ~~who you are~~
 }
 \note{

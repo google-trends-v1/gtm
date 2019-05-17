@@ -2,8 +2,8 @@ ForCombo<-function(..., type="mean"){
   suppressMessages(require(matrixStats))
   model.list<-list(...)
   for(i in 1:length(model.list)){
-    if(class(model.list[[i]])!="Maeforecast"){
-      stop(paste("Object number ", i, " is not of class 'Maeforecast'."))
+    if(!class(model.list[[i]])%in%c("Maeforecast", "MaeBagging")){
+      stop(paste("Object number ", i, " is not of class 'Maeforecast' or 'MaeBagging'."))
     }
   }
   forecasts<-matrix(ncol=length(model.list), nrow=nrow(model.list[[1]]$Forecasts))

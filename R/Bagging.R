@@ -11,7 +11,8 @@ Bagging<-function(data=NULL, boot=NULL, model="ar", w_size=NULL, sim="fixed", l=
   trues<-data[(w_size+1+h):nrow(data),1]
   results<-Metrics(pred=forecasts, true=trues, h=h)
   model<-paste("Bagging.", model, sep="")
+  results$Data<-data
   results$Model<-list(Model=model, Window=window, Size=w_size, Horizon=h, Bootstrap=boot, Block=l, Simulation=sim, Length=n.sim)
-  class(results)<-"Maeforecast"
+  class(results)<-"MaeBagging"
   return(results)
 }

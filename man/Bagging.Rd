@@ -42,10 +42,12 @@ Bagging(data, boot, sim="fixed", l=12L, norm=TRUE, n.sim=NROW(data),
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-This function returns the same list of results as does the \code{\link{maeforecast}} function.
+This function returns an object of class "MaeBagging" that contains the following components:
   \item{Forecasts }{data matrix, containing the point forecasts, realized values, forecast errors, signs of the forecasts and realized values, and success in predicting the signs.}
   \item{MSE }{numeric, mean squred error of the point forecasts.}
   \item{SRatio}{numeric, success ratio of the point forecasts. Success is claimed when the point forecasts and realized values have the same sign.}
+  \item{Data}{the data as used in the model.}
+  \item{Model}{some specifics about the model used. }
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -55,7 +57,7 @@ This function returns the same list of results as does the \code{\link{maeforeca
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
+\author{Zehua Wu
 %%  ~~who you are~~
 }
 \note{

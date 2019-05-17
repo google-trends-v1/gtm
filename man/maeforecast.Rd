@@ -8,30 +8,33 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-maeforecast(data, model="ar", w_size, window="recursive", y.index=1, h=0, ...)
+maeforecast(data, model="ar", w_size, window="recursive", y.index=1,
+            h=0, ...)
 
 maeforecast.ar(data, w_size, window="recursive", y.index=1, h=0)
 maeforecast.rw(data, w_size, windoe="recursive", y.index=1, h=0)
 maeforecast.lasso(data, w_size, window="recursive", y.index=1,
-            standardize=TRUE, lambda, h=0, t.select)
+            standardize=TRUE, lambda, h=0, t.select, t.update=F)
 maeforecast.postlasso(data, w_size, window="recursive", y.index=1,
-            standardize=TRUE, lambda, h=0, t.select)
+            standardize=TRUE, lambda, h=0, t.select, t.update=F)
 maeforecast.ridge(data, w_size, window="recursive", y.index=1,
-            standardize=TRUE, lambda, h=0, t.select)
+            standardize=TRUE, lambda, h=0, t.select, t.update=F)
 maeforecast.alasso(data, w_size, window="recursive", y.index=1,
             standardize=TRUE, lambda.ridge, lambda.lasso, h=0,
-            t.select)
+            t.select, t.update=F)
 maeforecast.postalasso(data, w_size, window="recursive", y.index=1,
             standardize=TRUE, lambda.ridge, lambda.lasso, h=0,
-            t.select)
+            t.select, t.update=F)
 maeforecast.postnet(data, w_size, window="recursive", pred, y.index=1,
-            standardize=TRUE, h=0, t.select)
+            standardize=TRUE, h=0, t.select, t.update=F,
+            alphas=c(0.2, 0.8, 0.02))
 maeforecast.rf(data, w_size, window="recursive", ntree=500, y.index=1,
-            replace=TRUE, h=0, t.select)
+            replace=TRUE, h=0, t.select, t.update=F)
 maeforecast.dfm(data, w_size, window="recursive", y.index=1,
-            factor.num, h=0, t.select)
-maeforecast.dfm(data, w_size, window="recursive", y.index=1,
-            factor.num, method="two-step", h=0, t.select)
+            factor.num, h=0, t.select, t.update=F)
+maeforecast.dfm2(data, w_size, window="recursive", y.index=1,
+            factor.num=3, method="two-step", clustor.type="partitional",
+            h=0, t.select, t.update=F)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -41,6 +44,7 @@ maeforecast.dfm(data, w_size, window="recursive", y.index=1,
   \item{window}{character, indicating the forecasting scheme to be applied. Options include \code{"recursive"}, \code{"rolling"}, and \code{"fixed"}.}
   \item{y.index}{numeric, indicating the column position of the time series for which the forecasts are made (Y). Defualt is \code{1}.}
   \item{pred}{numeric, indicating the number of predicators being considered in the Adaptive Elastic Net model. Default is set to be equal to the number of observations.}
+  \item{alphas}{vector of candidate \code{alpha}'s to use in \code{\link{aenet}}.}
   \item{factor.num}{numeric, indicating the number of dynamic factors to be extracted from the covariates in the Dynamic Factor Model. Default is \code{3}.}
   \item{standardize}{logical, indicating whether the data matrix should be scaled before the model is fitting, for the use of variable selection/shrinkage models. Default is \code{TRUE}.}
   \item{ntree}{numeric, number of trees to grow. Default is \code{500}.}
@@ -48,7 +52,8 @@ maeforecast.dfm(data, w_size, window="recursive", y.index=1,
   \item{method}{character, indicating which method should be used to extract dynamic factors. If \code{"aggregation"}, the covariate time series are first clustered based on partitional method, and a simple aggreagtion is applied to each cluster. If \code{"two-step"}, one factor is extracted within each cluster based on Doz, Giannone & Reichlin (2011).}
   \item{lambda, lambda.ridge, lambda.lasso}{optional user-supplied lambda sequence; default is NULL, and the function \code{glmnet} chooses its own sequence.}
   \item{h}{forecasting horizon. Default is \code{0}. }
-  \item{t.select}{number of covariates to be included. If omitted, every covariate will be included. Otherwise, a regression between the dependant variable, its lag and each covariate will be run and a statistical test will be applied for the significance of the covariate's coefficient. The covariates will then be ranked based on their test statistics, and \code{t.select} number of them with the highest test statistics will be included in the machine learning algorithms. Note that the forecasting horizon \code{h} is considered. This selection process is only applied at the beggining of the algorithms; that is, the list of covariates will not be updated with the rolling or recursive windows.}
+  \item{t.select}{number of covariates to be included. If omitted, every covariate will be included. Otherwise, a regression between the dependant variable, its lag and each covariate will be run and a statistical test will be applied for the significance of the covariate's coefficient. The covariates will then be ranked based on their test statistics, and \code{t.select} number of them with the highest test statistics will be included in the machine learning algorithms. Note that the forecasting horizon \code{h} is considered.}
+  \item{t.update}{logical, indicating wheter the preselection process should be repeated in evert iteration, if \code{t.select} is specified. Under the defualt \code{FALSE}, the preselection process will be implemented only with for the first window.}
 }
 \details{
 Supported models include \code{"ar"}, \code{"rw"} (Random Walk), \code{"lasso"}, \code{"postlasso"} (Post-Lasso), \code{"ridge"}, \code{"alasso"} (Adaptive Lasso), \code{"postalasso"} (Post-AdaptiveLasso), \code{"postnet"} (Post-Adaptive ElasticNet), \code{"rf"} (Random Forests), \code{"dfm"} & \code{"dfm2"} (Dynamic Factor Models).
@@ -57,7 +62,7 @@ For shrinkage models, the penalty factor lambda is selected automatically by 10-
 %%  ~~ If necessary, more details than the description above ~~
 }
 
-\note{
+\note{These functions have individual help pages available. To check them, call \code{help(maeforecast.model_name)} or \code{?maeforecast.model_name}.
 %%  ~~further notes~~
 }
 
@@ -87,7 +92,7 @@ For shrinkage models, the penalty factor lambda is selected automatically by 10-
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{maeforecast.ar}}, \code{\link{maeforecast.lasso}}, \code{\link{maeforecast.postlasso}}, \code{\link{maeforecast.ridge}}, \code{\link{maeforecast.alasso}}, \code{\link{maeforecast.postalasso}}, \code{\link{maeforecast.rf}}, \code{\link{maeforecast.postnet}}, \code{\link{maeforecast.dfm}}, \code{\link{maeforecast.dfm2}}
+\code{\link{maeforecast.rw}}, \code{\link{maeforecast.ar}}, \code{\link{maeforecast.lasso}}, \code{\link{maeforecast.postlasso}}, \code{\link{maeforecast.ridge}}, \code{\link{maeforecast.alasso}}, \code{\link{maeforecast.postalasso}}, \code{\link{maeforecast.rf}}, \code{\link{maeforecast.postnet}}, \code{\link{maeforecast.dfm}}, \code{\link{maeforecast.dfm2}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
