@@ -2214,8 +2214,6 @@ maeforecast.arimax<-function(data=NULL, w_size=NULL, window="recursive", y.index
 
         predicts[i] <- AR_lasso_predict
         trues[i] <- y_real
-        e <- y_real - AR_lasso_predict
-        errors[i] <- e
     }
   }else if(window=="rolling"){
     for(i in 1:n_windows){
@@ -2229,8 +2227,6 @@ maeforecast.arimax<-function(data=NULL, w_size=NULL, window="recursive", y.index
 
         predicts[i] <- AR_lasso_predict
         trues[i] <- y_real
-        e <- y_real - AR_lasso_predict
-        errors[i] <- e
     }
   }else{
       Data_uni = ts(Y, frequency=12)
@@ -2244,8 +2240,6 @@ maeforecast.arimax<-function(data=NULL, w_size=NULL, window="recursive", y.index
 
         predicts[i] <- AR_lasso_predict
         trues[i] <- y_real
-        e <- y_real - AR_lasso_predict
-        errors[i] <- e
       }
   }
 
