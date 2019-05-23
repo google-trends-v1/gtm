@@ -1,4 +1,4 @@
-ForCompare<-function(..., benchmark.index=NULL, test=c("weighted", "binary"), h=0){
+ForCompare<-function(..., benchmark.index=NULL, test=c("weighted", "binary"), test.statistic=T, h=0){
   cw <- function(e.m1,e.m2,yf.m1,yf.m2){
     nw <- function(y,qn){
       T <- length(y)
@@ -20,7 +20,12 @@ ForCompare<-function(..., benchmark.index=NULL, test=c("weighted", "binary"), h=
     return(results)
   }
 
-  model.list<-list(...)
+  if(class(list(...)[[1]])=="list"){
+    model.list<-list(...)[[1]]
+  }else{
+    model.list<-list(...)
+  }
+
   for(i in 1:length(model.list)){
     if(!class(model.list[[i]])%in%c("Maeforecast", "MaeBagging")){
       stop(paste("Object number ", i, " is not of class 'Maeforecast' or 'MaeBagging'."))
@@ -33,8 +38,10 @@ ForCompare<-function(..., benchmark.index=NULL, test=c("weighted", "binary"), h=
     names[i]<-model.list[[i]]$Model$Model
   }
   if(class(benchmark.index)=="integer"){
-    DMW<-vector()
-    CW<-vector()
+    DMWP<-vector()
+    DMWT<-vector()
+    CWP<-vector()
+    CWT<-vector()
     MSERatio<-vector()
     e1=as.numeric(model.list[[benchmark.index]]$Forecasts$Errors)
     yf1=as.numeric(model.list[[benchmark.index]]$Forecasts$Forecasts)
@@ -44,17 +51,41 @@ ForCompare<-function(..., benchmark.index=NULL, test=c("weighted", "binary"), h=
       SRatio[i]<-model.list[[i]]$SRatio
       MSERatio[i]<-MSE[i]/MSEbench
       if(i==as.numeric(benchmark.index)){
-        DMW[i]<-NA
-        CW[i]<-NA
+        DMWP[i]<-NA
+        DMWT[i]<-NA
+        CWP[i]<-NA
+        CWT[i]<-NA
       }else{
-        DMW[i]<-forecast::dm.test(e1=e1, e2=model.list[[i]]$Forecasts$Errors, "greater", h=1)$p.value
-        CW[i]<-cw(e.m1=e1,
+
+        if(class(dmw<-try(forecast::dm.test(e1=e1, e2=model.list[[i]]$Forecasts$Errors, "greater", h=1)$p.value, silent=T))=="try-error"){
+          DMWP[i]<-NaN
+          DMWT[i]<-NaN
+        }else{
+          DMWP[i]<-dmw
+          DMWT[i]<-forecast::dm.test(e1=e1, e2=model.list[[i]]$Forecasts$Errors, "greater", h=1)$statistic
+
+        }
+
+        CWP[i]<-cw(e.m1=e1,
                   e.m2=model.list[[i]]$Forecasts$Errors,
                   yf.m1=yf1,
                   yf.m2=model.list[[i]]$Forecasts$Forecasts)$pvalue
+
+        CWT[i]<-cw(e.m1=e1,
+                   e.m2=model.list[[i]]$Forecasts$Errors,
+                   yf.m1=yf1,
+                   yf.m2=model.list[[i]]$Forecasts$Forecasts)$test
       }
     }
-    table<-data.frame(Model=names, MSE=MSE, SRatio=SRatio, MSERatio=MSERatio, DMW=DMW, CW=CW)
+    if(test.statistic){
+      table<-data.frame(Model=names, MSE=MSE, SRatio=SRatio, MSERatio=MSERatio,
+                        DMWP=DMWP, DMWT=DMWT,
+                        CWP=CWP, CWT=CWT)
+    }else{
+      table<-data.frame(Model=names, MSE=MSE, SRatio=SRatio, MSERatio=MSERatio,
+                        DMWP=DMWP, CWP=CWP)
+    }
+
   }else if(is.null(benchmark.index)){
     for(i in 1:length(model.list)){
       MSE[i]<-model.list[[i]]$MSE

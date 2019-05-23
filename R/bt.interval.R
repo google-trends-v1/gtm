@@ -86,6 +86,11 @@ bt.interval<-function(.data=NULL, boot=100, forecast="model"){
                           sim=sim, l=l, n.sim=nrow(Data), norm=norm, model="rw",
                           w_size=w_size, window=window, endcorr=endcorr, y.index=y.index,
                           h=h)$t
+  }else if(Model=="ARIMAX"){
+    results<-boot::tsboot(tseries=Data, statistic=maeforecast.simplified, R=boot,
+                          sim=sim, l=l, n.sim=nrow(Data), norm=norm, model="arimax",
+                          w_size=w_size, window=window, endcorr=endcorr, y.index=y.index,
+                          h=h)$t
   }
   results<-t(results)
   forecasts<-.data$Forecasts$Forecasts

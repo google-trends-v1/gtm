@@ -2245,7 +2245,7 @@ maeforecast.arimax<-function(data=NULL, w_size=NULL, window="recursive", y.index
 
   results<-Metrics(pred=predicts, true=trues, h=h)
   results$Data<-Data
-  results$Model<-list(Model="AR", Window=window, Size=w_size, Horizon=h, Index=y.index)
+  results$Model<-list(Model="ARIMAX", Window=window, Size=w_size, Horizon=h, Index=y.index)
   class(results)<-"Maeforecast"
   return(results)
 }
@@ -2308,7 +2308,7 @@ maeforecast.rw<-function(data=NULL, w_size=NULL, window="recursive", y.index=1, 
 maeforecast<-function(data=NULL, model="ar", w_size=NULL, window="recursive", y.index=1, h=0, ...){
   if(model %in% c("ar", "lasso", "postlasso", "ridge",
                   "alasso", "postalasso", "postnet",
-                  "dfm", "dfm2", "rf", "rw")==FALSE){
+                  "dfm", "dfm2", "rf", "rw", "arimax")==FALSE){
     stop("Unsupported model type. Refer to help(maeforecast) for a list of supported models.")
   }
   FUN<-paste("maeforecast.", model, sep="")
